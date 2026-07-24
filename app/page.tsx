@@ -6,38 +6,38 @@ const gallery = [
     src: "/images/featured.jpg",
     alt: "Tatuaje realista de una mujer con flores realizado por Tonga Tattoo",
     title: "Realismo",
-    detail: "Pieza de convención · 34 me gusta",
+    detail: "Pieza de convención",
     featured: true,
   },
   {
     src: "/images/bodysuit.jpg",
     alt: "Trabajo de tatuaje de gran formato realizado por Tonga Tattoo",
     title: "Gran formato",
-    detail: "Proyecto bodysuit · 27 me gusta",
+    detail: "Proyecto bodysuit",
   },
   {
     src: "/images/healed-work.jpg",
     alt: "Trabajo de tatuaje curado realizado por Tonga Tattoo",
     title: "Trabajo curado",
-    detail: "Resultado consolidado · 25 me gusta",
+    detail: "Resultado consolidado",
   },
   {
     src: "/images/healed-birds.jpg",
     alt: "Tatuaje curado de pájaros realizado por Tonga Tattoo",
     title: "Color y detalle",
-    detail: "Trabajo curado · 21 me gusta",
+    detail: "Trabajo curado",
   },
   {
     src: "/images/fineline.jpg",
     alt: "Tatuaje de línea fina realizado por Tonga Tattoo",
     title: "Fine line",
-    detail: "Trazo delicado · 21 me gusta",
+    detail: "Trazo delicado",
   },
   {
     src: "/images/fine-lines.jpg",
     alt: "Composición de tatuajes de línea fina de Tonga Tattoo",
     title: "Línea fina",
-    detail: "Selección de estudio · 20 me gusta",
+    detail: "Selección de estudio",
   },
 ];
 
@@ -51,6 +51,7 @@ export default function Home() {
         </a>
         <nav aria-label="Navegación principal">
           <a href="#trabajos">Trabajos</a>
+          <a href="#nuria">Nuria</a>
           <a href="#estudio">Estudio</a>
           <a href="#contacto">Contacto</a>
         </nav>
@@ -125,7 +126,7 @@ export default function Home() {
             <p className="eyebrow">Selección del estudio</p>
             <h2>Trabajos que<br />hablan por sí solos.</h2>
           </div>
-          <p>Una selección basada en las publicaciones recientes con mayor interacción pública.</p>
+          <p>Una mirada al trazo, la composición y los proyectos que toman forma en el estudio.</p>
         </div>
         <div className="gallery">
           {gallery.map((item) => (
@@ -143,6 +144,36 @@ export default function Home() {
         <a className="button button-outline" href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">
           Ver más en Instagram
         </a>
+      </section>
+
+      <section className="artist-feature" id="nuria">
+        <div className="artist-signature" aria-hidden="true">
+          <span className="artist-studio-line">Tonga Tattoo · Leganés</span>
+          <strong>N</strong>
+          <strong>C</strong>
+          <span className="artist-signature-line" />
+        </div>
+        <div className="artist-story">
+          <p className="artist-kicker">La artista</p>
+          <h2>Nuria<br /><em>Córdoba.</em></h2>
+          <p className="artist-lead">
+            Una mirada propia dentro de Tonga Tattoo. Descubre su universo creativo,
+            sus piezas y el trabajo que comparte detrás de cada proyecto.
+          </p>
+          <div className="artist-links" aria-label="Perfiles de Nuria Córdoba">
+            <a href="https://www.instagram.com/_nuria_cordoba/" target="_blank" rel="noreferrer">
+              <span>Instagram</span>
+              <strong>@_nuria_cordoba</strong>
+            </a>
+            <a href="https://www.facebook.com/NuriaCordobaTorrente" target="_blank" rel="noreferrer">
+              <span>Facebook</span>
+              <strong>Nuria Córdoba Torrente</strong>
+            </a>
+          </div>
+          <a className="button button-artist" href="https://wa.me/34600037560?text=Hola%2C%20quiero%20pedir%20una%20cita%20con%20Nuria" target="_blank" rel="noreferrer">
+            Pedir cita con Nuria
+          </a>
+        </div>
       </section>
 
       <section className="testimonial">
