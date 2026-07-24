@@ -79,18 +79,26 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-visual">
-          <video
-            data-scroll-video
-            className="hero-video"
-            muted
-            playsInline
-            preload="auto"
-            poster="/images/featured.jpg"
-            aria-label="Proceso de tatuaje en Tonga Tattoo controlado por el desplazamiento"
-          >
-            <source src="/videos/victor-proceso.mp4" type="video/mp4" />
-          </video>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            data-scroll-frame
+            className="hero-frame"
+            src="/frames/hero/frame-001.webp"
+            alt="Proceso creativo de Tonga Tattoo controlado por el desplazamiento"
+            width="720"
+            height="1280"
+            decoding="async"
+            fetchPriority="high"
+          />
           <div className="hero-video-shade" aria-hidden="true" />
+          <span
+            className="frame-loader"
+            data-frame-loader
+            role="status"
+            aria-label="Cargando secuencia visual"
+          >
+            <span>Cargando secuencia</span>
+          </span>
           <div className="image-badge">
             <span>Desliza para descubrir</span>
             <strong>El proceso</strong>
