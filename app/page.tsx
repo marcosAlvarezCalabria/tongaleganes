@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { MotionExperience } from "./MotionExperience";
 
 const gallery = [
   {
@@ -43,6 +44,7 @@ const gallery = [
 export default function Home() {
   return (
     <main>
+      <MotionExperience />
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Tonga Tattoo, inicio">
           <Image src="/images/logo.png" alt="Tonga Tattoo" width={640} height={760} priority />
@@ -57,7 +59,7 @@ export default function Home() {
         </a>
       </header>
 
-      <section className="hero" id="inicio">
+      <section className="hero" id="inicio" data-scroll-hero>
         <div className="hero-copy">
           <p className="eyebrow">Estudio de tatuajes · Leganés</p>
           <h1>Tu historia,<br /><em>en la piel.</em></h1>
@@ -77,16 +79,25 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-visual">
-          <Image
-            src="/images/featured.jpg"
-            alt="Tatuaje realista de una mujer con flores realizado por Tonga Tattoo"
-            fill
-            sizes="(max-width: 900px) 100vw, 52vw"
-            priority
-          />
+          <video
+            data-scroll-video
+            className="hero-video"
+            muted
+            playsInline
+            preload="auto"
+            poster="/images/featured.jpg"
+            aria-label="Proceso de tatuaje en Tonga Tattoo controlado por el desplazamiento"
+          >
+            <source src="/videos/victor-proceso.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-shade" aria-hidden="true" />
           <div className="image-badge">
-            <span>Trabajo destacado</span>
-            <strong>Realismo</strong>
+            <span>Desliza para descubrir</span>
+            <strong>El proceso</strong>
+          </div>
+          <div className="scroll-cue" aria-hidden="true">
+            <span />
+            Scroll
           </div>
         </div>
       </section>
@@ -111,7 +122,7 @@ export default function Home() {
         <div className="gallery">
           {gallery.map((item) => (
             <article className={item.featured ? "gallery-card gallery-card-featured" : "gallery-card"} key={item.src}>
-              <div className="gallery-image">
+              <div className="gallery-image" data-parallax>
                 <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" />
               </div>
               <div className="gallery-caption">
