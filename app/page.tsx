@@ -84,7 +84,6 @@ export default function Home() {
         </div>
         <div className="hero-visual">
           <HeroSlideshow />
-          <div className="hero-video-shade" aria-hidden="true" />
           <div className="image-badge">
             <span>Obra de</span>
             <strong>Nuria Córdoba</strong>
