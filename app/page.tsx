@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { HandwrittenThanks } from "./HandwrittenThanks";
+import { HeroSlideshow } from "./HeroSlideshow";
 import { MotionExperience } from "./MotionExperience";
 import { StudioTour } from "./StudioTour";
 
@@ -62,7 +63,7 @@ export default function Home() {
         </a>
       </header>
 
-      <section className="hero" id="inicio" data-scroll-hero>
+      <section className="hero" id="inicio">
         <div className="hero-copy">
           <p className="eyebrow">Estudio de tatuajes · Leganés</p>
           <h1>Tu historia,<br /><em>en la piel.</em></h1>
@@ -82,33 +83,11 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-visual">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            data-scroll-frame
-            className="hero-frame"
-            src="/frames/hero/frame-001.webp"
-            alt="Proceso creativo de Tonga Tattoo controlado por el desplazamiento"
-            width="720"
-            height="1280"
-            decoding="async"
-            fetchPriority="high"
-          />
+          <HeroSlideshow />
           <div className="hero-video-shade" aria-hidden="true" />
-          <span
-            className="frame-loader"
-            data-frame-loader
-            role="status"
-            aria-label="Cargando secuencia visual"
-          >
-            <span>Cargando secuencia</span>
-          </span>
           <div className="image-badge">
-            <span>Desliza para descubrir</span>
-            <strong>El proceso</strong>
-          </div>
-          <div className="scroll-cue" aria-hidden="true">
-            <span />
-            Scroll
+            <span>Obra de</span>
+            <strong>Nuria Córdoba</strong>
           </div>
         </div>
       </section>

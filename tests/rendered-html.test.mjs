@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import test from "node:test";
 
 async function render() {
@@ -38,10 +39,12 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.match(html, /Conoce[\s\S]*el estudio/);
   assert.match(html, /conoce-el-estudio\.mp4/);
   assert.doesNotMatch(html, /autoplay/);
-  assert.match(html, /data-scroll-hero/);
-  assert.match(html, /data-scroll-frame/);
-  assert.match(html, /\/frames\/hero\/frame-001\.webp/);
+  assert.match(html, /nuria-01\.jpg/);
+  assert.match(html, /nuria-05\.jpg/);
+  assert.doesNotMatch(html, /data-scroll-frame/);
+  assert.doesNotMatch(html, /\/frames\/hero\//);
   assert.doesNotMatch(html, /victor-proceso\.mp4|data-scroll-video/);
   assert.match(html, /data-parallax/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+  assert.equal(existsSync(new URL("../public/frames/hero", import.meta.url)), false);
 });
