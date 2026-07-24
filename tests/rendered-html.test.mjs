@@ -32,6 +32,7 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.ok((html.match(/data-parallax=/g) ?? []).length >= 10);
   assert.match(html, /manifesto-backdrop/);
   assert.match(html, /testimonial-backdrop/);
+  assert.match(html, /nuria-cordoba\.jpg/);
   assert.match(html, /data-scroll-hero/);
   assert.match(html, /data-scroll-frame/);
   assert.match(html, /\/frames\/hero\/frame-001\.webp/);

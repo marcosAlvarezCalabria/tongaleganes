@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-const FRAME_COUNT = 95;
-const PRELOAD_CONCURRENCY = 6;
+const FRAME_COUNT = 238;
+const PRELOAD_CONCURRENCY = 4;
 
 function framePath(frame: number): string {
   return `/frames/hero/frame-${String(frame).padStart(3, "0")}.webp`;
@@ -98,26 +98,56 @@ export function MotionExperience() {
         return;
       }
 
-      let nextFrame = 2;
+      const initialFrames = Array.from({ length: 39 }, (_, index) => index + 2);
+      const keyFrames = Array.from(
+        { length: Math.floor((FRAME_COUNT - 40) / 8) + 1 },
+        (_, index) => 40 + index * 8,
+      ).filter((frame) => frame <= FRAME_COUNT);
+      const prioritized = new Set([...initialFrames, ...keyFrames]);
+      const remainingFrames = Array.from(
+        { length: FRAME_COUNT - 1 },
+        (_, index) => index + 2,
+      ).filter((frame) => !prioritized.has(frame));
+      const preloadOrder = [...prioritized, ...remainingFrames];
+      let queueIndex = 0;
+
+      const yieldToBrowser = () =>
+        new Promise<void>((resolve) => {
+          if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(() => resolve(), { timeout: 80 });
+            return;
+          }
+          globalThis.setTimeout(resolve, 16);
+        });
+
       const worker = async () => {
-        while (!cancelled && nextFrame <= FRAME_COUNT) {
-          const frame = nextFrame;
-          nextFrame += 1;
+        while (!cancelled && queueIndex < preloadOrder.length) {
+          const frame = preloadOrder[queueIndex];
+          queueIndex += 1;
 
           await new Promise<void>((resolve) => {
             const image = new Image();
             image.onload = () => {
-              loadedFrames.add(frame);
-              const progress = Math.round((loadedFrames.size / FRAME_COUNT) * 100);
-              loader?.style.setProperty("--frames-loaded", (progress / 100).toFixed(3));
-              loader?.setAttribute("aria-label", `Secuencia visual cargada al ${progress}%`);
-              resolve();
+              void image.decode().then(() => {
+                if (cancelled) {
+                  return;
+                }
+                loadedFrames.add(frame);
+                const progress = Math.round((loadedFrames.size / FRAME_COUNT) * 100);
+                loader?.style.setProperty("--frames-loaded", (progress / 100).toFixed(3));
+                loader?.setAttribute("aria-label", `Secuencia visual cargada al ${progress}%`);
+              }).catch(() => undefined).finally(() => {
+                resolve();
+              });
             };
             image.onerror = () => resolve();
             image.src = framePath(frame);
           });
 
           requestUpdate();
+          if (frame > 40) {
+            await yieldToBrowser();
+          }
         }
       };
 

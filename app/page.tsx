@@ -157,11 +157,15 @@ export default function Home() {
       </section>
 
       <section className="artist-feature" id="nuria">
-        <div className="artist-signature" aria-hidden="true">
+        <div className="artist-portrait" data-parallax data-parallax-speed="82">
+          <Image
+            src="/images/nuria-cordoba.jpg"
+            alt="Retrato de Nuria Córdoba"
+            fill
+            sizes="(max-width: 900px) 100vw, 52vw"
+          />
           <span className="artist-studio-line">Tonga Tattoo · Leganés</span>
-          <strong>N</strong>
-          <strong>C</strong>
-          <span className="artist-signature-line" />
+          <span className="artist-portrait-name" aria-hidden="true">Nuria</span>
         </div>
         <div className="artist-story">
           <p className="artist-kicker">La artista</p>
