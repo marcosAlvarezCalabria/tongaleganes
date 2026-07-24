@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { HandwrittenThanks } from "./HandwrittenThanks";
 import { MotionExperience } from "./MotionExperience";
+import { StudioTour } from "./StudioTour";
 
 const gallery = [
   {
@@ -53,7 +54,7 @@ export default function Home() {
         <nav aria-label="Navegación principal">
           <a href="#trabajos">Trabajos</a>
           <a href="#nuria">Nuria</a>
-          <a href="#estudio">Estudio</a>
+          <a href="#conoce-el-estudio">Estudio</a>
           <a href="#contacto">Contacto</a>
         </nav>
         <a className="header-cta" href="https://wa.me/34600037560" target="_blank" rel="noreferrer">
@@ -123,6 +124,23 @@ export default function Home() {
             Cada pieza nace de una conversación. Escuchamos tu idea, la transformamos en un
             diseño exclusivo y cuidamos cada detalle, desde el primer boceto hasta la curación.
           </p>
+        </div>
+      </section>
+
+      <section className="studio-tour" id="conoce-el-estudio">
+        <div className="studio-tour-stage">
+          <div className="studio-tour-copy">
+            <p className="studio-tour-kicker">Puertas abiertas</p>
+            <h2>Conoce<br /><em>el estudio.</em></h2>
+            <p>
+              Un espacio pensado para escuchar tu idea, crear con calma y cuidar
+              cada detalle del proceso.
+            </p>
+            <span className="studio-tour-scroll" aria-hidden="true">Desliza para recorrer</span>
+          </div>
+          <div className="studio-media" data-parallax data-parallax-speed="34">
+            <StudioTour />
+          </div>
         </div>
       </section>
 
