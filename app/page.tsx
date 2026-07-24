@@ -2,6 +2,7 @@ import Image from "next/image";
 import { HandwrittenThanks } from "./HandwrittenThanks";
 import { HeroSlideshow } from "./HeroSlideshow";
 import { MotionExperience } from "./MotionExperience";
+import { SiteHeader } from "./SiteHeader";
 import { StudioTour } from "./StudioTour";
 
 const gallery = [
@@ -48,20 +49,7 @@ export default function Home() {
   return (
     <main>
       <MotionExperience />
-      <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Tonga Tattoo, inicio">
-          <Image src="/images/logo.png" alt="Tonga Tattoo" width={640} height={760} priority />
-        </a>
-        <nav aria-label="Navegación principal">
-          <a href="#trabajos">Trabajos</a>
-          <a href="#nuria">Nuria</a>
-          <a href="#conoce-el-estudio">Estudio</a>
-          <a href="#contacto">Contacto</a>
-        </nav>
-        <a className="header-cta" href="https://wa.me/34600037560" target="_blank" rel="noreferrer">
-          Pedir cita
-        </a>
-      </header>
+      <SiteHeader />
 
       <section className="hero" id="inicio">
         <div className="hero-copy">
