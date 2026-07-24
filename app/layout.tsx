@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Montserrat } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
@@ -12,6 +12,12 @@ const display = Cormorant_Garamond({
 
 const sans = Montserrat({
   variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const handwriting = Caveat({
+  variable: "--font-handwriting",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -51,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body className={`${display.variable} ${sans.variable}`}>{children}</body>
+      <body className={`${display.variable} ${sans.variable} ${handwriting.variable}`}>{children}</body>
     </html>
   );
 }

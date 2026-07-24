@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HandwrittenThanks } from "./HandwrittenThanks";
 import { MotionExperience } from "./MotionExperience";
 
 const gallery = [
@@ -229,6 +230,18 @@ export default function Home() {
             <a href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">@tongaleganes</a>
           </div>
         </address>
+      </section>
+
+      <section className="thanks-section" aria-labelledby="thanks-title">
+        <div className="thanks-heading">
+          <span>Una nota de Nuria</span>
+          <h2 id="thanks-title">Siempre,<br /><em>gracias.</em></h2>
+        </div>
+        <HandwrittenThanks />
+        <div className="thanks-signature" aria-hidden="true">
+          Nuria Córdoba
+          <span />
+        </div>
       </section>
 
       <footer>

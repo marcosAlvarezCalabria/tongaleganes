@@ -33,6 +33,8 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.match(html, /manifesto-backdrop/);
   assert.match(html, /testimonial-backdrop/);
   assert.match(html, /nuria-cordoba\.jpg/);
+  assert.match(html, /Quiero dar las GRACIAS/);
+  assert.match(html, /Una nota de Nuria/);
   assert.match(html, /data-scroll-hero/);
   assert.match(html, /data-scroll-frame/);
   assert.match(html, /\/frames\/hero\/frame-001\.webp/);
