@@ -64,7 +64,7 @@ export function HeroSlideshow() {
             alt={index === active ? slide.alt : ""}
             fill
             priority={index === 0}
-            sizes="(max-width: 900px) 100vw, 56vw"
+            sizes="100vw"
           />
         </div>
       ))}
