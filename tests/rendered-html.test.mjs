@@ -29,6 +29,9 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.match(html, /instagram\.com\/_nuria_cordoba/);
   assert.match(html, /facebook\.com\/NuriaCordobaTorrente/);
   assert.doesNotMatch(html, /me gusta/i);
+  assert.ok((html.match(/data-parallax=/g) ?? []).length >= 10);
+  assert.match(html, /manifesto-backdrop/);
+  assert.match(html, /testimonial-backdrop/);
   assert.match(html, /data-scroll-hero/);
   assert.match(html, /data-scroll-frame/);
   assert.match(html, /\/frames\/hero\/frame-001\.webp/);

@@ -112,38 +112,48 @@ export default function Home() {
       </section>
 
       <section className="manifesto" id="estudio">
-        <p className="eyebrow">Tonga Tattoo</p>
-        <h2>No hacemos tatuajes.<br /><em>Contamos historias.</em></h2>
-        <p>
-          Cada pieza nace de una conversación. Escuchamos tu idea, la transformamos en un
-          diseño exclusivo y cuidamos cada detalle, desde el primer boceto hasta la curación.
-        </p>
+        <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="120" aria-hidden="true">
+          <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" />
+        </div>
+        <div className="section-content">
+          <p className="eyebrow">Tonga Tattoo</p>
+          <h2>No hacemos tatuajes.<br /><em>Contamos historias.</em></h2>
+          <p>
+            Cada pieza nace de una conversación. Escuchamos tu idea, la transformamos en un
+            diseño exclusivo y cuidamos cada detalle, desde el primer boceto hasta la curación.
+          </p>
+        </div>
       </section>
 
       <section className="work-section" id="trabajos">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Selección del estudio</p>
-            <h2>Trabajos que<br />hablan por sí solos.</h2>
+        <div className="parallax-backdrop work-backdrop" data-parallax data-parallax-speed="90" aria-hidden="true">
+          <Image src="/images/fine-work.jpg" alt="" fill sizes="45vw" />
+        </div>
+        <div className="section-content">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Selección del estudio</p>
+              <h2>Trabajos que<br />hablan por sí solos.</h2>
+            </div>
+            <p>Una mirada al trazo, la composición y los proyectos que toman forma en el estudio.</p>
           </div>
-          <p>Una mirada al trazo, la composición y los proyectos que toman forma en el estudio.</p>
+          <div className="gallery">
+            {gallery.map((item, index) => (
+              <article className={item.featured ? "gallery-card gallery-card-featured" : "gallery-card"} key={item.src}>
+                <div className="gallery-image" data-parallax data-parallax-speed={index % 2 === 0 ? "64" : "44"}>
+                  <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" />
+                </div>
+                <div className="gallery-caption">
+                  <h3>{item.title}</h3>
+                  <span>{item.detail}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+          <a className="button button-outline" href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">
+            Ver más en Instagram
+          </a>
         </div>
-        <div className="gallery">
-          {gallery.map((item) => (
-            <article className={item.featured ? "gallery-card gallery-card-featured" : "gallery-card"} key={item.src}>
-              <div className="gallery-image" data-parallax>
-                <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" />
-              </div>
-              <div className="gallery-caption">
-                <h3>{item.title}</h3>
-                <span>{item.detail}</span>
-              </div>
-            </article>
-          ))}
-        </div>
-        <a className="button button-outline" href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">
-          Ver más en Instagram
-        </a>
       </section>
 
       <section className="artist-feature" id="nuria">
@@ -177,14 +187,22 @@ export default function Home() {
       </section>
 
       <section className="testimonial">
-        <span className="quote-mark" aria-hidden="true">“</span>
-        <blockquote>
-          Pero buenoooooo… ¡grande mi gran amiga!
-        </blockquote>
-        <p><strong>@nekane2025</strong> · Comentario en Instagram</p>
+        <div className="parallax-backdrop testimonial-backdrop" data-parallax data-parallax-speed="110" aria-hidden="true">
+          <Image src="/images/memories.jpg" alt="" fill sizes="100vw" />
+        </div>
+        <div className="section-content">
+          <span className="quote-mark" aria-hidden="true">“</span>
+          <blockquote>
+            Pero buenoooooo… ¡grande mi gran amiga!
+          </blockquote>
+          <p><strong>@nekane2025</strong> · Comentario en Instagram</p>
+        </div>
       </section>
 
       <section className="contact" id="contacto">
+        <div className="parallax-backdrop contact-backdrop" data-parallax data-parallax-speed="100" aria-hidden="true">
+          <Image src="/images/healed-birds.jpg" alt="" fill sizes="65vw" />
+        </div>
         <div className="contact-main">
           <p className="eyebrow">¿Tienes una idea?</p>
           <h2>Vamos a hacerla<br /><em>inolvidable.</em></h2>

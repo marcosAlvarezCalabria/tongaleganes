@@ -80,7 +80,8 @@ export function MotionExperience() {
         }
 
         const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-        const offset = (progress - 0.5) * 54;
+        const speed = Number(item.dataset.parallaxSpeed ?? 54);
+        const offset = (progress - 0.5) * speed;
         item.style.setProperty("--parallax-y", `${offset.toFixed(2)}px`);
       });
     };
