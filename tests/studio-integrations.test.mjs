@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { isAllowedPublicOrigin, submitPublicRequest } from "../studio/use-cases.ts";
 import { persistAvailabilityBlock, persistOperationPlan } from "../studio/adapters/d1.ts";
+import { createAppointmentHandlers } from "../app/api/crm/appointments/handlers.ts";
 
 const validIntake = {
   bookingMode: "request",
@@ -111,4 +112,29 @@ test("maps availability blocks conditionally and reports conditional appointment
   assert.deepEqual(staleAppointment, { ok: false, error: { kind: "conflict", code: "appointment_write_conflict", message: "This appointment changed before it could be saved." } });
   const conflictingBlock = await persistAvailabilityBlock(fakeD1([0]), block, "2026-08-01T09:00:00.000Z");
   assert.deepEqual(conflictingBlock, { ok: false, error: { kind: "conflict", code: "availability_conflict", message: "This artist is unavailable." } });
+});
+
+const crmAppointment = { id: "appointment-1", assignedArtistId: "artist-1", status: "confirmed", startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z", notes: null, revision: 2 };
+const crmHandlers = (actor) => createAppointmentHandlers({
+  actor: async () => actor,
+  list: async (current) => current.role === "owner" ? [crmAppointment] : [crmAppointment].filter((item) => item.assignedArtistId === current.artistId),
+  find: async (id, current) => id === crmAppointment.id && (current.role === "owner" || current.artistId === crmAppointment.assignedArtistId) ? crmAppointment : null,
+  save: async () => ({ ok: true, value: undefined }),
+  block: async () => ({ ok: true, value: undefined }),
+});
+
+test("serves scoped list/detail and denies forged or unrelated-artist requests without disclosure", async () => {
+  assert.equal((await crmHandlers(null).list(new Request("https://crm.test/api/crm/appointments"))).status, 401);
+  const artist = crmHandlers({ staffId: "artist-staff", role: "artist", artistId: "artist-1" });
+  assert.deepEqual(await (await artist.list(new Request("https://crm.test/api/crm/appointments"))).json(), { appointments: [crmAppointment] });
+  assert.deepEqual(await (await artist.detail(new Request("https://crm.test/api/crm/appointments/appointment-1"), "appointment-1")).json(), { appointment: crmAppointment });
+  assert.equal((await artist.mutate(new Request("https://crm.test/api/crm/appointments/other", { method: "POST", body: JSON.stringify({ notes: "x" }) }), "other")).status, 404);
+});
+
+test("allows owner scheduling and blocking but denies artist owner actions", async () => {
+  const owner = crmHandlers({ staffId: "owner-1", role: "owner" });
+  assert.equal((await owner.mutate(new Request("https://crm.test/api/crm/appointments/appointment-1", { method: "POST", body: JSON.stringify({ kind: "schedule", artistId: "artist-1", interval: { startsAt: "2026-08-16T10:00:00.000Z", endsAt: "2026-08-16T12:00:00.000Z" } }) }), "appointment-1")).status, 204);
+  assert.equal((await owner.block(new Request("https://crm.test/api/crm/availability-blocks", { method: "POST", body: JSON.stringify({ artistId: "artist-1", startsAt: "2026-08-16T13:00:00.000Z", endsAt: "2026-08-16T14:00:00.000Z" }) }))).status, 204);
+  const artist = crmHandlers({ staffId: "artist-staff", role: "artist", artistId: "artist-1" });
+  assert.equal((await artist.block(new Request("https://crm.test/api/crm/availability-blocks", { method: "POST", body: "{}" }))).status, 403);
 });

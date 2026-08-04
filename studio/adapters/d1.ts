@@ -1,8 +1,31 @@
 import { conflictResult, type DomainResult } from "../domain.ts";
 import type { AppointmentOperationPlan } from "../use-cases.ts";
+import type { Actor } from "../ports.ts";
+import type { OperationAppointment } from "../use-cases.ts";
 
 export interface D1Statement {
   bind(...values: unknown[]): D1Statement;
+  all<T>(): Promise<{ results: T[] }>;
+  first<T>(): Promise<T | null>;
+}
+
+type AppointmentRow = { id: string; artist_id: string | null; status: OperationAppointment["status"]; scheduled_start_at: string | null; scheduled_end_at: string | null; revision: number };
+const mapAppointmentRow = (row: AppointmentRow): OperationAppointment => ({ id: row.id, assignedArtistId: row.artist_id, status: row.status, startsAt: row.scheduled_start_at, endsAt: row.scheduled_end_at, notes: null, revision: row.revision });
+const appointmentColumns = "id, artist_id, status, scheduled_start_at, scheduled_end_at, revision";
+
+export async function readScopedAppointments(database: D1DatabasePort, actor: Actor) {
+  const statement = actor.role === "owner"
+    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments`)
+    : database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE artist_id = ?`).bind(actor.artistId);
+  return (await statement.all<AppointmentRow>()).results.map(mapAppointmentRow);
+}
+
+export async function readScopedAppointment(database: D1DatabasePort, actor: Actor, id: string) {
+  const statement = actor.role === "owner"
+    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE id = ?`).bind(id)
+    : database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE id = ? AND artist_id = ?`).bind(id, actor.artistId);
+  const row = await statement.first<AppointmentRow>();
+  return row ? mapAppointmentRow(row) : null;
 }
 
 export type D1BatchResult = { meta?: { changes?: number } };
