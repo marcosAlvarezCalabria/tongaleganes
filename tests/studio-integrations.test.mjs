@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { isAllowedPublicOrigin, submitPublicRequest } from "../studio/use-cases.ts";
+import { persistAvailabilityBlock, persistOperationPlan } from "../studio/adapters/d1.ts";
 
 const validIntake = {
   bookingMode: "request",
@@ -60,4 +61,54 @@ test("refuses rate-limited or failed-human-check requests before persistence", a
     assert.equal(result.ok, false);
   }
   assert.equal(saves, 0);
+});
+
+const operationPlan = {
+  currentState: {
+    id: "appointment-1", assignedArtistId: "artist-1", status: "confirmed",
+    startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z", notes: null, revision: 3,
+  },
+  history: { appointmentId: "appointment-1", actorId: "owner-1", status: "confirmed" },
+  calendarOutbox: { appointmentId: "appointment-1", revision: 3 },
+};
+
+const fakeD1 = (changes) => {
+  const statements = [];
+  return {
+    statements,
+    prepare(query) {
+      return { bind(...values) { return { query, values }; } };
+    },
+    async batch(batch) {
+      statements.push(...batch);
+      return changes.map((change) => ({ meta: { changes: change } }));
+    },
+  };
+};
+
+test("maps an operation plan into one atomic current-state, history, and outbox D1 batch", async () => {
+  const database = fakeD1([1, 1, 1]);
+  const result = await persistOperationPlan(database, operationPlan, "2026-08-01T09:00:00.000Z");
+
+  assert.deepEqual(result, { ok: true, value: undefined });
+  assert.equal(database.statements.length, 3);
+  assert.match(database.statements[0].query, /UPDATE appointments/);
+  assert.deepEqual(database.statements[0].values, ["artist-1", "confirmed", "2026-08-15T10:00:00.000Z", "2026-08-15T12:00:00.000Z", 3, "2026-08-01T09:00:00.000Z", "appointment-1", 2]);
+  assert.match(database.statements[1].query, /INSERT INTO appointment_history/);
+  assert.deepEqual(database.statements[1].values.slice(0, 5), ["appointment-1:history:3", "appointment-1", "owner-1", "confirmed", null]);
+  assert.match(database.statements[2].query, /INSERT INTO calendar_outbox/);
+  assert.deepEqual(database.statements[2].values.slice(0, 3), ["appointment-1:outbox:3", "appointment-1", 3]);
+});
+
+test("maps availability blocks conditionally and reports conditional appointment or block conflicts", async () => {
+  const block = { id: "block-1", artistId: "artist-1", startsAt: "2026-08-15T13:00:00.000Z", endsAt: "2026-08-15T14:00:00.000Z", reason: "Break" };
+  const available = fakeD1([1]);
+  assert.deepEqual(await persistAvailabilityBlock(available, block, "2026-08-01T09:00:00.000Z"), { ok: true, value: undefined });
+  assert.match(available.statements[0].query, /NOT EXISTS/);
+  assert.deepEqual(available.statements[0].values.slice(0, 7), ["block-1", "artist-1", block.startsAt, block.endsAt, "Break", "2026-08-01T09:00:00.000Z", "2026-08-01T09:00:00.000Z"]);
+
+  const staleAppointment = await persistOperationPlan(fakeD1([0, 0, 0]), operationPlan, "2026-08-01T09:00:00.000Z");
+  assert.deepEqual(staleAppointment, { ok: false, error: { kind: "conflict", code: "appointment_write_conflict", message: "This appointment changed before it could be saved." } });
+  const conflictingBlock = await persistAvailabilityBlock(fakeD1([0]), block, "2026-08-01T09:00:00.000Z");
+  assert.deepEqual(conflictingBlock, { ok: false, error: { kind: "conflict", code: "availability_conflict", message: "This artist is unavailable." } });
 });
