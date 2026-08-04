@@ -60,7 +60,7 @@ export default function Home() {
             realismo, fine line y proyectos de gran formato.
           </p>
           <div className="hero-actions">
-            <a className="button button-primary" href="https://wa.me/34600037560" target="_blank" rel="noreferrer">
+            <a className="button button-primary" href="/book">
               Cuéntanos tu idea
             </a>
             <a className="text-link" href="#trabajos">Ver trabajos <span aria-hidden="true">↓</span></a>
@@ -169,7 +169,7 @@ export default function Home() {
               <strong>Nuria Córdoba Torrente</strong>
             </a>
           </div>
-          <a className="button button-artist" href="https://wa.me/34600037560?text=Hola%2C%20quiero%20pedir%20una%20cita%20con%20Nuria" target="_blank" rel="noreferrer">
+          <a className="button button-artist" href="/book">
             Pedir cita con Nuria
           </a>
         </div>
@@ -195,7 +195,7 @@ export default function Home() {
         <div className="contact-main">
           <p className="eyebrow">¿Tienes una idea?</p>
           <h2>Vamos a hacerla<br /><em>inolvidable.</em></h2>
-          <a className="button button-dark" href="https://wa.me/34600037560" target="_blank" rel="noreferrer">
+          <a className="button button-dark" href="/book">
             Escríbenos por WhatsApp
           </a>
         </div>
