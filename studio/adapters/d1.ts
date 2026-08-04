@@ -9,21 +9,21 @@ export interface D1Statement {
   first<T>(): Promise<T | null>;
 }
 
-type AppointmentRow = { id: string; artist_id: string | null; status: OperationAppointment["status"]; scheduled_start_at: string | null; scheduled_end_at: string | null; revision: number };
-const mapAppointmentRow = (row: AppointmentRow): OperationAppointment => ({ id: row.id, assignedArtistId: row.artist_id, status: row.status, startsAt: row.scheduled_start_at, endsAt: row.scheduled_end_at, notes: null, revision: row.revision });
-const appointmentColumns = "id, artist_id, status, scheduled_start_at, scheduled_end_at, revision";
+type AppointmentRow = { id: string; customer_name: string; description: string; artist_id: string | null; status: OperationAppointment["status"]; scheduled_start_at: string | null; scheduled_end_at: string | null; revision: number };
+const mapAppointmentRow = (row: AppointmentRow): OperationAppointment => ({ id: row.id, customerName: row.customer_name, description: row.description, assignedArtistId: row.artist_id, status: row.status, startsAt: row.scheduled_start_at, endsAt: row.scheduled_end_at, notes: null, revision: row.revision });
+const appointmentColumns = "appointments.id, customers.name AS customer_name, appointments.description, appointments.artist_id, appointments.status, appointments.scheduled_start_at, appointments.scheduled_end_at, appointments.revision";
 
 export async function readScopedAppointments(database: D1DatabasePort, actor: Actor) {
   const statement = actor.role === "owner"
-    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments`)
-    : database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE artist_id = ?`).bind(actor.artistId);
+    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id`)
+    : database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.artist_id = ?`).bind(actor.artistId);
   return (await statement.all<AppointmentRow>()).results.map(mapAppointmentRow);
 }
 
 export async function readScopedAppointment(database: D1DatabasePort, actor: Actor, id: string) {
   const statement = actor.role === "owner"
-    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE id = ?`).bind(id)
-    : database.prepare(`SELECT ${appointmentColumns} FROM appointments WHERE id = ? AND artist_id = ?`).bind(id, actor.artistId);
+    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.id = ?`).bind(id)
+    : database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.id = ? AND appointments.artist_id = ?`).bind(id, actor.artistId);
   const row = await statement.first<AppointmentRow>();
   return row ? mapAppointmentRow(row) : null;
 }

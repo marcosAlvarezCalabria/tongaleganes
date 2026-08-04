@@ -15,5 +15,5 @@ export default defineConfig(async () => ({
     outboundService: (request) => new URL(request.url).pathname === "/cdn-cgi/access/certs"
       ? Response.json({ keys: [publicJwk] }) : new Response("blocked", { status: 502 }),
   } })],
-  test: { include: ["tests/crm-workerd.test.ts"], setupFiles: ["tests/crm-workerd.setup.ts"] },
+  test: { include: ["tests/crm-*.test.ts"], setupFiles: ["tests/crm-workerd.setup.ts"] },
 }));

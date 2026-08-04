@@ -54,6 +54,8 @@ export function isAllowedPublicOrigin(origin: string | null, expectedOrigin: str
 
 export type OperationAppointment = {
   id: string;
+  customerName: string;
+  description: string;
   assignedArtistId: string | null;
   status: AppointmentStatus;
   startsAt: string | null;
