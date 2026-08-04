@@ -1,4 +1,4 @@
-import { validationResult, validateBookingRequest, type BookingRequest, type DomainResult } from "./domain.ts";
+import { conflictResult, forbiddenResult, hasAvailabilityConflict, planAppointmentChange, validationResult, validateBookingRequest, type AppointmentStatus, type BookingRequest, type DomainResult, type TimeInterval } from "./domain.ts";
 import type { Actor } from "./ports.ts";
 
 const hasArtistScope = (actor: Actor, assignedArtistId: string | null) => actor.artistId !== undefined && actor.artistId === assignedArtistId;
@@ -50,6 +50,88 @@ export function parsePublicIntake(value: unknown): DomainResult<PublicIntake> {
 
 export function isAllowedPublicOrigin(origin: string | null, expectedOrigin: string) {
   return origin === null || origin === expectedOrigin;
+}
+
+export type OperationAppointment = {
+  id: string;
+  assignedArtistId: string | null;
+  status: AppointmentStatus;
+  startsAt: string | null;
+  endsAt: string | null;
+  notes: string | null;
+  revision: number;
+};
+
+export type OperationPlanningRepository = {
+  appointment: OperationAppointment;
+  occupiedIntervals: TimeInterval[];
+};
+
+export type AppointmentOperation =
+  | { kind: "schedule"; artistId: string; interval: TimeInterval }
+  | { kind: "update"; status?: AppointmentStatus; notes?: string };
+
+export type AppointmentOperationPlan = {
+  currentState: OperationAppointment;
+  history: { appointmentId: string; actorId: string; status: AppointmentStatus; notes?: string };
+  calendarOutbox: { appointmentId: string; revision: number };
+};
+
+const toOperationPlan = (
+  appointmentId: string,
+  currentState: OperationAppointment,
+  history: AppointmentOperationPlan["history"],
+): DomainResult<AppointmentOperationPlan> => ({
+  ok: true,
+  value: {
+    currentState,
+    history,
+    calendarOutbox: { appointmentId, revision: currentState.revision },
+  },
+});
+
+export function planAppointmentOperation(input: {
+  actor: Actor;
+  repository: OperationPlanningRepository;
+  operation: AppointmentOperation;
+}): DomainResult<AppointmentOperationPlan> {
+  const { actor, operation, repository } = input;
+  const appointment = repository.appointment;
+
+  if (operation.kind === "schedule") {
+    if (actor.role !== "owner") {
+      return forbiddenResult("owner_only", "Only owners can schedule.");
+    }
+    if (hasAvailabilityConflict(operation.interval, repository.occupiedIntervals)) {
+      return conflictResult("availability_conflict", "This artist is unavailable.");
+    }
+    const status = appointment.status === "submitted" ? "confirmed" : "moved";
+    const change = planAppointmentChange(appointment.status, status, actor.staffId);
+    if (!change.ok) return change;
+    const currentState = {
+      ...appointment,
+      assignedArtistId: operation.artistId,
+      status: change.value.status,
+      startsAt: operation.interval.startsAt,
+      endsAt: operation.interval.endsAt,
+      revision: appointment.revision + 1,
+    };
+    return toOperationPlan(appointment.id, currentState, { appointmentId: appointment.id, ...change.value.history });
+  }
+
+  if (!canAccessAppointment(actor, appointment.assignedArtistId)) {
+    return forbiddenResult("appointment_access_denied", "This actor cannot access this appointment.");
+  }
+  const change = operation.status === undefined
+    ? { ok: true as const, value: { status: appointment.status, history: { actorId: actor.staffId, status: appointment.status } } }
+    : planAppointmentChange(appointment.status, operation.status, actor.staffId);
+  if (!change.ok) return change;
+  const currentState = { ...appointment, status: change.value.status, notes: operation.notes ?? appointment.notes, revision: appointment.revision + 1 };
+  return toOperationPlan(appointment.id, currentState, {
+    appointmentId: appointment.id,
+    ...change.value.history,
+    ...(operation.notes === undefined ? {} : { notes: operation.notes }),
+  });
 }
 
 export async function submitPublicRequest(value: unknown, dependencies: PublicIntakeDependencies): Promise<DomainResult<{ appointmentId: string }>> {

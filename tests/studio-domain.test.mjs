@@ -8,6 +8,7 @@ import {
   validationResult,
 } from "../studio/domain.ts";
 import { canTransitionAppointment, hasAvailabilityConflict, planAppointmentChange } from "../studio/domain.ts";
+import { planAppointmentOperation } from "../studio/use-cases.ts";
 
 const validRequest = {
   bookingMode: "request",
@@ -95,4 +96,68 @@ test("detects appointment overlaps and availability blocks", () => {
 test("allows a boundary-touching interval and terminal status remains terminal", () => {
   assert.equal(hasAvailabilityConflict({ startsAt: "2026-08-15T12:00:00.000Z", endsAt: "2026-08-15T13:00:00.000Z" }, [{ startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" }]), false);
   assert.equal(canTransitionAppointment("cancelled", "confirmed"), false);
+});
+
+const plannerFixtures = {
+  appointment: {
+    id: "appointment-1", assignedArtistId: null, status: "submitted",
+    startsAt: null, endsAt: null, notes: null, revision: 2,
+  },
+  owner: { staffId: "owner-1", role: "owner" },
+  assignedArtist: { staffId: "artist-staff-1", role: "artist", artistId: "artist-1" },
+  otherArtist: { staffId: "artist-staff-2", role: "artist", artistId: "artist-2" },
+};
+
+const planWithFakeRepository = (input) => planAppointmentOperation({
+  ...input,
+  repository: {
+    appointment: input.appointment ?? plannerFixtures.appointment,
+    occupiedIntervals: input.occupiedIntervals ?? [],
+  },
+});
+
+test("plans an owner assignment and schedule as deterministic state, history, and calendar writes", () => {
+  assert.deepEqual(planWithFakeRepository({
+    actor: plannerFixtures.owner,
+    operation: {
+      kind: "schedule",
+      artistId: "artist-1",
+      interval: { startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" },
+    },
+  }), {
+    ok: true,
+    value: {
+      currentState: {
+        id: "appointment-1", assignedArtistId: "artist-1", status: "confirmed",
+        startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z", notes: null, revision: 3,
+      },
+      history: { appointmentId: "appointment-1", actorId: "owner-1", status: "confirmed" },
+      calendarOutbox: { appointmentId: "appointment-1", revision: 3 },
+    },
+  });
+});
+
+test("plans an assigned artist status and note update without granting another artist access", () => {
+  const appointment = { ...plannerFixtures.appointment, assignedArtistId: "artist-1", status: "confirmed", revision: 3 };
+  assert.deepEqual(planWithFakeRepository({ actor: plannerFixtures.assignedArtist, appointment, operation: { kind: "update", status: "completed", notes: "Healed well." } }), {
+    ok: true,
+    value: {
+      currentState: { ...appointment, status: "completed", notes: "Healed well.", revision: 4 },
+      history: { appointmentId: "appointment-1", actorId: "artist-staff-1", status: "completed", notes: "Healed well." },
+      calendarOutbox: { appointmentId: "appointment-1", revision: 4 },
+    },
+  });
+  assert.deepEqual(planWithFakeRepository({ actor: plannerFixtures.otherArtist, appointment, operation: { kind: "update", notes: "Should not write." } }), {
+    ok: false,
+    error: { kind: "forbidden", code: "appointment_access_denied", message: "This actor cannot access this appointment." },
+  });
+});
+
+test("rejects artist scheduling, invalid transitions, occupied intervals, and availability blocks", () => {
+  const scheduled = { ...plannerFixtures.appointment, assignedArtistId: "artist-1", status: "confirmed", startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" };
+  assert.equal(planWithFakeRepository({ actor: plannerFixtures.assignedArtist, appointment: scheduled, operation: { kind: "schedule", artistId: "artist-1", interval: { startsAt: "2026-08-15T13:00:00.000Z", endsAt: "2026-08-15T14:00:00.000Z" } } }).error.code, "owner_only");
+  assert.equal(planWithFakeRepository({ actor: plannerFixtures.owner, appointment: scheduled, operation: { kind: "update", status: "submitted" } }).error.code, "invalid_transition");
+  const schedule = { kind: "schedule", artistId: "artist-1", interval: { startsAt: "2026-08-15T11:00:00.000Z", endsAt: "2026-08-15T13:00:00.000Z" } };
+  assert.equal(planWithFakeRepository({ actor: plannerFixtures.owner, operation: schedule, occupiedIntervals: [{ startsAt: "2026-08-15T10:30:00.000Z", endsAt: "2026-08-15T11:30:00.000Z" }] }).error.code, "availability_conflict");
+  assert.equal(planWithFakeRepository({ actor: plannerFixtures.owner, operation: schedule, occupiedIntervals: [{ startsAt: "2026-08-15T11:30:00.000Z", endsAt: "2026-08-15T12:30:00.000Z" }] }).error.code, "availability_conflict");
 });
