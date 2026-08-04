@@ -38,6 +38,8 @@
     "drizzle",
     "examples",
     "worker",
-    "vite.config.ts"
+    "vite.config.ts",
+    "tests/crm-workerd.setup.ts",
+    "tests/crm-workerd.test.ts"
   ]
 }
