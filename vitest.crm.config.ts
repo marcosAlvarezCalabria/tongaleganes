@@ -10,7 +10,7 @@ const privateJwk = await exportJWK(pair.privateKey);
 export default defineConfig(async () => ({
   resolve: { alias: { "@": path.resolve(".") } },
   plugins: [cloudflareTest({ wrangler: { configPath: "./tests/crm-workerd.wrangler.json" }, miniflare: {
-    d1Databases: ["DB"],
+    d1Databases: ["DB"], r2Buckets: ["MEDIA"],
     bindings: { TEST_MIGRATIONS: await readD1Migrations("./drizzle"), TEST_PRIVATE_JWK: JSON.stringify(privateJwk), CF_ACCESS_TEAM_DOMAIN: "access.test", CF_ACCESS_AUD: "crm-test" },
     outboundService: (request) => new URL(request.url).pathname === "/cdn-cgi/access/certs"
       ? Response.json({ keys: [publicJwk] }) : new Response("blocked", { status: 502 }),
