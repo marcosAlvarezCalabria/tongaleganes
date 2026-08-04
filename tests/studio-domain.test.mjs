@@ -7,6 +7,7 @@ import {
   validateBookingRequest,
   validationResult,
 } from "../studio/domain.ts";
+import { canTransitionAppointment, hasAvailabilityConflict, planAppointmentChange } from "../studio/domain.ts";
 
 const validRequest = {
   bookingMode: "request",
@@ -73,4 +74,25 @@ test("provides a valid no-preference booking fixture", () => {
     ok: true,
     value: domainFixtures.requestWithoutPreference,
   });
+});
+
+test("plans an owner confirmation with append-only history", () => {
+  assert.deepEqual(planAppointmentChange("submitted", "confirmed", "owner-1"), {
+    ok: true,
+    value: { status: "confirmed", history: { actorId: "owner-1", status: "confirmed" } },
+  });
+});
+
+test("rejects invalid lifecycle transitions", () => {
+  assert.equal(canTransitionAppointment("submitted", "completed"), false);
+});
+
+test("detects appointment overlaps and availability blocks", () => {
+  const interval = { startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" };
+  assert.equal(hasAvailabilityConflict(interval, [{ startsAt: "2026-08-15T11:00:00.000Z", endsAt: "2026-08-15T13:00:00.000Z" }]), true);
+});
+
+test("allows a boundary-touching interval and terminal status remains terminal", () => {
+  assert.equal(hasAvailabilityConflict({ startsAt: "2026-08-15T12:00:00.000Z", endsAt: "2026-08-15T13:00:00.000Z" }, [{ startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" }]), false);
+  assert.equal(canTransitionAppointment("cancelled", "confirmed"), false);
 });
