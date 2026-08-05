@@ -1,4 +1,4 @@
-import { persistAvailabilityBlock, persistOperationPlan, readScopedAppointment, readScopedAppointments, type D1DatabasePort } from "@/studio/adapters/d1";
+import { persistAvailabilityBlock, persistOperationPlan, readOccupiedIntervals, readScopedAppointment, readScopedAppointments, type D1DatabasePort } from "@/studio/adapters/d1";
 import { createAppointmentHandlers } from "./appointments/handlers";
 import { getCrmActor } from "./_auth";
 
@@ -10,6 +10,7 @@ export async function crmOperationHandlers() {
     actor: getCrmActor,
     list: (actor) => readScopedAppointments(database, actor),
     find: (id, actor) => readScopedAppointment(database, actor, id),
+    occupied: (artistId, appointmentId) => readOccupiedIntervals(database, artistId, appointmentId),
     save: (plan) => persistOperationPlan(database, plan, now()),
     block: (block) => persistAvailabilityBlock(database, block, now()),
   });

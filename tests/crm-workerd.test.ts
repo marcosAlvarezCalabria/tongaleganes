@@ -10,6 +10,9 @@ const token = (email: string) => new SignJWT({ email }).setProtectedHeader({ alg
 
 beforeEach(async () => {
   await env.DB.prepare("DELETE FROM media_assets").run();
+  await env.DB.prepare("DELETE FROM calendar_outbox").run();
+  await env.DB.prepare("DELETE FROM appointment_history").run();
+  await env.DB.prepare("DELETE FROM availability_blocks").run();
   await env.DB.prepare("DELETE FROM appointments").run();
   await env.DB.prepare("DELETE FROM customers").run();
   await env.DB.prepare("DELETE FROM staff").run();
@@ -52,6 +55,45 @@ describe("test-only workerd CRM auth harness", () => {
     expect(listHtml).toContain("Actualizar estado");
     expect((await SELF.fetch(new Request("https://studio.test/crm/appointments/appointment-ada", { headers: artistHeaders }))).status).toBe(200);
     expect((await SELF.fetch(new Request("https://studio.test/crm/appointments/appointment-grace", { headers: artistHeaders }))).status).toBe(404);
+  });
+
+  it("rejects owner scheduling that overlaps an active appointment without state, history, or outbox writes", async () => {
+    const request = new Request("https://studio.test/api/crm/appointments/appointment-grace", {
+      method: "POST",
+      headers: { "Cf-Access-Jwt-Assertion": await token("owner@test.invalid"), "content-type": "application/json" },
+      body: JSON.stringify({ kind: "schedule", artistId: "artist-1", interval: { startsAt: "2026-08-15T11:00:00.000Z", endsAt: "2026-08-15T13:00:00.000Z" } }),
+    });
+    const response = await SELF.fetch(request);
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({ kind: "conflict", code: "availability_conflict" });
+    await expect(env.DB.prepare("SELECT artist_id, status, scheduled_start_at, scheduled_end_at, revision FROM appointments WHERE id = ?").bind("appointment-grace").first()).resolves.toEqual({ artist_id: "artist-2", status: "submitted", scheduled_start_at: null, scheduled_end_at: null, revision: 1 });
+    await expect(env.DB.prepare("SELECT id FROM appointment_history WHERE appointment_id = ?").bind("appointment-grace").all()).resolves.toMatchObject({ results: [] });
+    await expect(env.DB.prepare("SELECT id FROM calendar_outbox WHERE appointment_id = ?").bind("appointment-grace").all()).resolves.toMatchObject({ results: [] });
+  });
+
+  it("rejects owner scheduling into an availability block but permits touching its boundary", async () => {
+    await env.DB.prepare("INSERT INTO availability_blocks (id,artist_id,starts_at,ends_at,reason,created_at,updated_at) VALUES (?,?,?,?,?,?,?)").bind("block-1", "artist-1", "2026-08-16T10:00:00.000Z", "2026-08-16T12:00:00.000Z", "break", "2026", "2026").run();
+    const schedule = async (startsAt: string, endsAt: string) => SELF.fetch(new Request("https://studio.test/api/crm/appointments/appointment-grace", {
+      method: "POST",
+      headers: { "Cf-Access-Jwt-Assertion": await token("owner@test.invalid"), "content-type": "application/json" },
+      body: JSON.stringify({ kind: "schedule", artistId: "artist-1", interval: { startsAt, endsAt } }),
+    }));
+    expect((await schedule("2026-08-16T11:00:00.000Z", "2026-08-16T13:00:00.000Z")).status).toBe(409);
+    expect((await schedule("2026-08-16T12:00:00.000Z", "2026-08-16T14:00:00.000Z")).status).toBe(204);
+    await expect(env.DB.prepare("SELECT artist_id, status, scheduled_start_at, scheduled_end_at, revision FROM appointments WHERE id = ?").bind("appointment-grace").first()).resolves.toEqual({ artist_id: "artist-1", status: "confirmed", scheduled_start_at: "2026-08-16T12:00:00.000Z", scheduled_end_at: "2026-08-16T14:00:00.000Z", revision: 2 });
+  });
+
+  it("excludes the appointment being moved and terminal appointments from occupied intervals", async () => {
+    const insert = (id: string, status: "cancelled" | "completed") => env.DB.prepare("INSERT INTO appointments (id,customer_id,artist_id,status,preferred_start_at,scheduled_start_at,scheduled_end_at,description,revision,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)").bind(id, "customer-ada", "artist-1", status, "2026-08-17T10:00:00.000Z", "2026-08-17T10:00:00.000Z", "2026-08-17T12:00:00.000Z", status, 1, "2026", "2026").run();
+    await insert("appointment-cancelled", "cancelled");
+    await insert("appointment-completed", "completed");
+    const schedule = async (startsAt: string, endsAt: string) => SELF.fetch(new Request("https://studio.test/api/crm/appointments/appointment-grace", {
+      method: "POST",
+      headers: { "Cf-Access-Jwt-Assertion": await token("owner@test.invalid"), "content-type": "application/json" },
+      body: JSON.stringify({ kind: "schedule", artistId: "artist-1", interval: { startsAt, endsAt } }),
+    }));
+    expect((await schedule("2026-08-17T10:00:00.000Z", "2026-08-17T12:00:00.000Z")).status).toBe(204);
+    expect((await schedule("2026-08-17T11:00:00.000Z", "2026-08-17T13:00:00.000Z")).status).toBe(204);
   });
 
   it("rejects unassigned and unsafe uploads without persisting D1 or R2 writes", async () => {

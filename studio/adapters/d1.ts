@@ -2,6 +2,7 @@ import { conflictResult, type DomainResult } from "../domain.ts";
 import type { AppointmentOperationPlan } from "../use-cases.ts";
 import type { Actor } from "../ports.ts";
 import type { OperationAppointment } from "../use-cases.ts";
+import type { TimeInterval } from "../domain.ts";
 
 export interface D1Statement {
   bind(...values: unknown[]): D1Statement;
@@ -26,6 +27,16 @@ export async function readScopedAppointment(database: D1DatabasePort, actor: Act
     : database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.id = ? AND appointments.artist_id = ?`).bind(id, actor.artistId);
   const row = await statement.first<AppointmentRow>();
   return row ? mapAppointmentRow(row) : null;
+}
+
+type IntervalRow = { starts_at: string; ends_at: string };
+const mapIntervalRow = ({ starts_at, ends_at }: IntervalRow): TimeInterval => ({ startsAt: starts_at, endsAt: ends_at });
+
+export async function readOccupiedIntervals(database: D1DatabasePort, artistId: string, appointmentId: string): Promise<TimeInterval[]> {
+  const appointments = database.prepare("SELECT scheduled_start_at AS starts_at, scheduled_end_at AS ends_at FROM appointments WHERE artist_id = ? AND id != ? AND scheduled_start_at IS NOT NULL AND scheduled_end_at IS NOT NULL AND status NOT IN ('cancelled', 'completed')").bind(artistId, appointmentId);
+  const blocks = database.prepare("SELECT starts_at, ends_at FROM availability_blocks WHERE artist_id = ?").bind(artistId);
+  return [...(await appointments.all<IntervalRow>()).results, ...(await blocks.all<IntervalRow>()).results]
+    .map(mapIntervalRow);
 }
 
 export type D1BatchResult = { meta?: { changes?: number } };
