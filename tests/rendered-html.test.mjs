@@ -25,7 +25,7 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.match(html, /Tu historia/);
   assert.match(html, /Trabajos que/);
   assert.match(html, /C\/ San Nicasio, 7/);
-  assert.match(html, /wa\.me\/34600037560/);
+  assert.equal((html.match(/href="\/book"/g) ?? []).length, 4);
   assert.match(html, /id="site-navigation"/);
   assert.match(html, /aria-controls="site-navigation"/);
   assert.match(html, /instagram\.com\/tongaleganes/);

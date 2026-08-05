@@ -63,7 +63,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
-        <a className="header-cta" href="https://wa.me/34600037560" target="_blank" rel="noreferrer">
+        <a className="header-cta" href="/book">
           Pedir cita
         </a>
         <button

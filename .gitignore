@@ -42,3 +42,6 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# Agent tooling cache
+/.atl/

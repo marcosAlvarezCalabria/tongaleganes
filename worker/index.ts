@@ -1,6 +1,8 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { projectCalendarEvent } from "../studio/adapters/google-calendar";
+import { drainCalendarOutbox } from "../studio/calendar-drain";
 
 interface Env {
   ASSETS: Fetcher;
@@ -12,12 +14,17 @@ interface Env {
       };
     };
   };
+  GOOGLE_CALENDAR_ID: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_REFRESH_TOKEN: string;
 }
 
 interface ExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
   passThroughOnException(): void;
 }
+interface ScheduledEvent { readonly cron: string; }
 
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
@@ -41,6 +48,9 @@ const worker = {
     }
 
     return handler.fetch(request, env, ctx);
+  },
+  scheduled(_: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(drainCalendarOutbox(env.DB as never, (appointment) => projectCalendarEvent(appointment, { calendarId: env.GOOGLE_CALENDAR_ID, clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, refreshToken: env.GOOGLE_REFRESH_TOKEN })));
   },
 };
 

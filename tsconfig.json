@@ -3,6 +3,7 @@
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -37,6 +38,8 @@
     "drizzle",
     "examples",
     "worker",
-    "vite.config.ts"
+    "vite.config.ts",
+    "tests/crm-workerd.setup.ts",
+    "tests/crm-workerd.test.ts"
   ]
 }
