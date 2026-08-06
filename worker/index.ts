@@ -1,11 +1,12 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { fetchOptimizedAsset } from "./assets";
 import { projectCalendarEvent } from "../studio/adapters/google-calendar";
 import { drainCalendarOutbox } from "../studio/calendar-drain";
 
 interface Env {
-  ASSETS: Fetcher;
+  ASSETS?: Fetcher;
   DB: D1Database;
   IMAGES: {
     input(stream: ReadableStream): {
@@ -18,6 +19,7 @@ interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REFRESH_TOKEN: string;
+  TURNSTILE_SITE_KEY: string;
 }
 
 interface ExecutionContext {
@@ -39,7 +41,7 @@ const worker = {
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
-        fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
+        fetchAsset: (path) => fetchOptimizedAsset(env.ASSETS, path, request.url),
         transformImage: async (body, { width, format, quality }) => {
           const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();
