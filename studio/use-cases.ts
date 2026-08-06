@@ -65,6 +65,7 @@ export type OperationAppointment = {
   endsAt: string | null;
   notes: string | null;
   revision: number;
+  calendarProjection?: { status: string; revision: number; eventId: string; lastError: string | null } | null;
 };
 
 export type OperationPlanningRepository = {

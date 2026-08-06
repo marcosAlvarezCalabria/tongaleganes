@@ -2,8 +2,8 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { fetchOptimizedAsset } from "./assets";
-import { projectCalendarEvent } from "../studio/adapters/google-calendar";
-import { drainCalendarOutbox } from "../studio/calendar-drain";
+import { projectCalendarEvent, reconcileCalendarEvent } from "../studio/adapters/google-calendar";
+import { drainCalendarOutbox, reconcileCalendarProjections } from "../studio/calendar-drain";
 
 interface Env {
   ASSETS?: Fetcher;
@@ -51,8 +51,10 @@ const worker = {
 
     return handler.fetch(request, env, ctx);
   },
-  scheduled(_: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(drainCalendarOutbox(env.DB as never, (appointment) => projectCalendarEvent(appointment, { calendarId: env.GOOGLE_CALENDAR_ID, clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, refreshToken: env.GOOGLE_REFRESH_TOKEN })));
+  scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    const config = { calendarId: env.GOOGLE_CALENDAR_ID, clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, refreshToken: env.GOOGLE_REFRESH_TOKEN };
+    ctx.waitUntil(drainCalendarOutbox(env.DB as never, (appointment) => projectCalendarEvent(appointment, config)));
+    if (event.cron === "0 3 * * *") ctx.waitUntil(reconcileCalendarProjections(env.DB as never, (appointment) => reconcileCalendarEvent(appointment, config)));
   },
 };
 

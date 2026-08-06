@@ -7,6 +7,7 @@ export type CrmAppointmentView = {
   status: AppointmentStatus;
   startsAt: string | null;
   endsAt: string | null;
+  calendarProjection?: { status: string; revision: number; eventId: string; lastError: string | null } | null;
 };
 
 type StaffRole = "owner" | "artist";
@@ -24,6 +25,7 @@ export function appointmentListView(role: StaffRole, appointments: CrmAppointmen
 export function appointmentDetailView(role: StaffRole, appointment: CrmAppointmentView) {
   return {
     ...appointment,
+    calendarProjection: role === "owner" && appointment.calendarProjection ? { status: appointment.calendarProjection.status, revision: appointment.calendarProjection.revision } : null,
     actions: role === "owner" ? ["Programar cita", "Reasignar artista"] : ["Actualizar estado", "Añadir nota"],
   };
 }

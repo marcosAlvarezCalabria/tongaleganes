@@ -10,20 +10,21 @@ export interface D1Statement {
   first<T>(): Promise<T | null>;
 }
 
-type AppointmentRow = { id: string; customer_name: string; description: string; artist_id: string | null; status: OperationAppointment["status"]; scheduled_start_at: string | null; scheduled_end_at: string | null; revision: number };
-const mapAppointmentRow = (row: AppointmentRow): OperationAppointment => ({ id: row.id, customerName: row.customer_name, description: row.description, assignedArtistId: row.artist_id, status: row.status, startsAt: row.scheduled_start_at, endsAt: row.scheduled_end_at, notes: null, revision: row.revision });
+type AppointmentRow = { id: string; customer_name: string; description: string; artist_id: string | null; status: OperationAppointment["status"]; scheduled_start_at: string | null; scheduled_end_at: string | null; revision: number; projection_status?: string | null; projection_revision?: number | null; projection_event_id?: string | null; projection_error?: string | null };
+const mapAppointmentRow = (row: AppointmentRow): OperationAppointment => ({ id: row.id, customerName: row.customer_name, description: row.description, assignedArtistId: row.artist_id, status: row.status, startsAt: row.scheduled_start_at, endsAt: row.scheduled_end_at, notes: null, revision: row.revision, calendarProjection: row.projection_status && row.projection_revision != null && row.projection_event_id ? { status: row.projection_status, revision: row.projection_revision, eventId: row.projection_event_id, lastError: row.projection_error ?? null } : null });
 const appointmentColumns = "appointments.id, customers.name AS customer_name, appointments.description, appointments.artist_id, appointments.status, appointments.scheduled_start_at, appointments.scheduled_end_at, appointments.revision";
+const ownerProjectionColumns = ", calendar_projection.status AS projection_status, calendar_projection.revision AS projection_revision, calendar_projection.event_id AS projection_event_id, calendar_projection.last_error AS projection_error";
 
 export async function readScopedAppointments(database: D1DatabasePort, actor: Actor) {
   const statement = actor.role === "owner"
-    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id`)
+    ? database.prepare(`SELECT ${appointmentColumns}${ownerProjectionColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id LEFT JOIN calendar_projection ON calendar_projection.appointment_id = appointments.id`)
     : database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.artist_id = ?`).bind(actor.artistId);
   return (await statement.all<AppointmentRow>()).results.map(mapAppointmentRow);
 }
 
 export async function readScopedAppointment(database: D1DatabasePort, actor: Actor, id: string) {
   const statement = actor.role === "owner"
-    ? database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.id = ?`).bind(id)
+    ? database.prepare(`SELECT ${appointmentColumns}${ownerProjectionColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id LEFT JOIN calendar_projection ON calendar_projection.appointment_id = appointments.id WHERE appointments.id = ?`).bind(id)
     : database.prepare(`SELECT ${appointmentColumns} FROM appointments JOIN customers ON customers.id = appointments.customer_id WHERE appointments.id = ? AND appointments.artist_id = ?`).bind(id, actor.artistId);
   const row = await statement.first<AppointmentRow>();
   return row ? mapAppointmentRow(row) : null;
