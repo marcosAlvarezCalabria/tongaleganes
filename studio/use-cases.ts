@@ -1,4 +1,5 @@
 import { conflictResult, forbiddenResult, hasAvailabilityConflict, planAppointmentChange, validationResult, validateBookingRequest, type AppointmentStatus, type BookingRequest, type DomainResult, type TimeInterval } from "./domain.ts";
+import { isAppointmentStyle, isValidE164Phone, normalizeSpanishPhone } from "./booking.ts";
 import type { Actor } from "./ports.ts";
 
 const hasArtistScope = (actor: Actor, assignedArtistId: string | null) => actor.artistId !== undefined && actor.artistId === assignedArtistId;
@@ -26,8 +27,10 @@ export function parsePublicIntake(value: unknown): DomainResult<PublicIntake> {
   const { customer, appointment, artistPreference } = value;
   if (!isText(customer.name, 100)) return invalid("invalid_name", "customer.name");
   if (!isText(customer.email, 254) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) return invalid("invalid_email", "customer.email");
-  if (!isText(customer.phone, 32) || !/^\+[1-9]\d{7,14}$/.test(customer.phone)) return invalid("invalid_phone", "customer.phone");
+  const phone = typeof customer.phone === "string" ? normalizeSpanishPhone(customer.phone) : "";
+  if (!isText(phone, 32) || !isValidE164Phone(phone)) return invalid("invalid_phone", "customer.phone");
   if (!isText(appointment.description, 2000)) return invalid("invalid_description", "appointment.description");
+  if (!isAppointmentStyle(appointment.style)) return invalid("invalid_style", "appointment.style");
   if (!isText(appointment.preferredStartAt, 40) || Number.isNaN(Date.parse(appointment.preferredStartAt))) return invalid("invalid_start", "appointment.preferredStartAt");
   if (!isText(value.turnstileToken, 2048)) return invalid("invalid_human_check", "turnstileToken");
 
@@ -40,8 +43,8 @@ export function parsePublicIntake(value: unknown): DomainResult<PublicIntake> {
     ok: true,
     value: {
       bookingMode: value.bookingMode as BookingRequest["bookingMode"],
-      customer: { name: customer.name.trim(), email: customer.email.trim().toLowerCase(), phone: customer.phone.trim() },
-      appointment: { preferredStartAt: appointment.preferredStartAt, description: appointment.description.trim() },
+      customer: { name: customer.name.trim(), email: customer.email.trim().toLowerCase(), phone },
+      appointment: { preferredStartAt: appointment.preferredStartAt, description: appointment.description.trim(), style: appointment.style },
       artistPreference: preference,
       turnstileToken: value.turnstileToken,
     },

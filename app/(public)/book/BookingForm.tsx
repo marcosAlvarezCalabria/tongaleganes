@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Script from "next/script";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { normalizeSpanishPhone } from "@/studio/booking";
+import { normalizeSpanishPhone, replaceAppointmentStyle, type AppointmentStyle } from "@/studio/booking";
 
 const STYLES_INSPIRATION = [
   { id: "fineline", title: "Fine Line & Minimalist", image: "/images/fineline.jpg", desc: "Líneas delicadas, geometría y sutileza." },
   { id: "neotrad", title: "Neo-Traditional", image: "/images/artwork.jpg", desc: "Contraste vibrante y expresividad clásica." },
   { id: "blackwork", title: "Blackwork & Ornamental", image: "/images/fine-work.jpg", desc: "Tinta negra profunda y ornamentación." },
   { id: "bodysuit", title: "Large Scale & Bodysuit", image: "/images/bodysuit.jpg", desc: "Piezas de gran formato y anatomía." },
-];
+] as const;
 
 type Turnstile = { render(element: HTMLElement, options: Record<string, unknown>): string; remove(widgetId: string): void };
 
@@ -19,7 +19,7 @@ declare global {
 }
 
 export function BookingForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
-  const [selectedStyle, setSelectedStyle] = useState<string>("fineline");
+  const [selectedStyle, setSelectedStyle] = useState<AppointmentStyle>("fineline");
   const [description, setDescription] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
@@ -28,8 +28,8 @@ export function BookingForm({ turnstileSiteKey }: { turnstileSiteKey: string }) 
   const turnstileElement = useRef<HTMLDivElement>(null);
   const turnstileWidget = useRef<string | null>(null);
 
-  function handleSelectStyle(style: typeof STYLES_INSPIRATION[0]) {
-    setSelectedStyle(style.id);
+  function handleSelectStyle(style: (typeof STYLES_INSPIRATION)[number]) {
+    setSelectedStyle((current) => replaceAppointmentStyle(current, style.id));
   }
 
   useEffect(() => {

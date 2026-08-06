@@ -3,6 +3,7 @@ declare module "cloudflare:workers" {
     CF_ACCESS_AUD?: string;
     CF_ACCESS_TEAM_DOMAIN?: string;
     TURNSTILE_SECRET?: string;
+    TURNSTILE_SITE_KEY?: string;
     DB: {
       prepare(query: string): {
         bind(...values: unknown[]): { first<T>(): Promise<T | null>; run(): Promise<unknown> };

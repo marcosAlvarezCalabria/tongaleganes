@@ -1,7 +1,8 @@
 import { SiteHeader } from "@/app/SiteHeader";
 import { BookingForm } from "./BookingForm";
 
-export default function BookPage() {
+export default async function BookPage() {
+  const { env } = await import("cloudflare:workers");
   return (
     <main>
       <SiteHeader />
@@ -10,7 +11,7 @@ export default function BookPage() {
           <p className="eyebrow">Tu próxima pieza</p>
           <h1>Cuéntanos<br /><em>tu idea.</em></h1>
           <p>Envíanos una solicitud y prepararemos la conversación contigo.</p>
-          <BookingForm />
+          <BookingForm turnstileSiteKey={env.TURNSTILE_SITE_KEY ?? ""} />
         </div>
       </section>
     </main>
