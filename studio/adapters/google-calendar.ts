@@ -23,9 +23,13 @@ const headers = (token: string) => ({ authorization: `Bearer ${token}`, "content
 export async function projectCalendarEvent(appointment: CalendarAppointment, config: CalendarConfig): Promise<"projected" | "retry"> {
   try {
     const { access_token, ...dependencies } = await withToken(config); const body = await event(appointment);
+    if (appointment.status === "cancelled") {
+      const response = await dependencies.fetcher(endpoint(config.calendarId, body.id), { method: "DELETE", headers: headers(access_token) });
+      return response.ok || response.status === 404 ? "projected" : "retry";
+    }
     let response = await dependencies.fetcher(endpoint(config.calendarId), { method: "POST", headers: headers(access_token), body: JSON.stringify(body) });
     if (response.status === 409) response = await dependencies.fetcher(endpoint(config.calendarId, body.id), { method: "PATCH", headers: headers(access_token), body: JSON.stringify(body) });
-    return response.ok ? "projected" : response.status === 408 || response.status === 429 || response.status >= 500 ? "retry" : "retry";
+    return response.ok ? "projected" : "retry";
   } catch { return "retry"; }
 }
 

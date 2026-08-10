@@ -4,7 +4,7 @@ export type ArtistPreference = { kind: "artist"; artistId: string } | { kind: "n
 export interface BookingRequest {
   bookingMode: BookingMode;
   customer: { name: string; email: string; phone: string };
-  appointment: { preferredStartAt: string; description: string };
+  appointment: { preferredStartAt: string; description: string; style: AppointmentStyle };
   artistPreference: ArtistPreference;
 }
 
@@ -24,7 +24,7 @@ export const domainFixtures = {
   requestWithoutPreference: {
     bookingMode: "request",
     customer: { name: "Ada Lovelace", email: "ada@example.com", phone: "+34600037560" },
-    appointment: { preferredStartAt: "2026-08-15T10:00:00.000Z", description: "Fine line botanical design" },
+    appointment: { preferredStartAt: "2026-08-15T10:00:00.000Z", description: "Fine line botanical design", style: "fineline" },
     artistPreference: { kind: "none" },
   } satisfies BookingRequest,
 };
@@ -74,3 +74,4 @@ export function hasAvailabilityConflict(candidate: TimeInterval, occupied: TimeI
 export const lifecycleFixtures = {
   openInterval: { startsAt: "2026-08-15T10:00:00.000Z", endsAt: "2026-08-15T12:00:00.000Z" },
 };
+import type { AppointmentStyle } from "./booking.ts";

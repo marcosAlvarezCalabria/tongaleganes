@@ -24,5 +24,11 @@ describe("CRM page view models", () => {
     expect(list.primaryAction).toBe("Actualizar estado");
     expect(detail.customerName).toBe("Ada Lovelace");
     expect(detail.actions).toEqual(["Actualizar estado", "Añadir nota"]);
+    expect(detail.calendarProjection).toBeNull();
+  });
+
+  it("shows owners a minimal retry or drift projection status without disclosing errors", () => {
+    const detail = appointmentDetailView("owner", { ...appointment, calendarProjection: { status: "retry", revision: 3, eventId: "crm123", lastError: "timeout" } });
+    expect(detail.calendarProjection).toEqual({ status: "retry", revision: 3 });
   });
 });

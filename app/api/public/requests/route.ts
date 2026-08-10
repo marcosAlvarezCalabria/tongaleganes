@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       const requestedArtistId = intake.artistPreference.kind === "artist" ? intake.artistPreference.artistId : null;
       await env.DB.batch([
         env.DB.prepare("INSERT INTO customers (id, name, email, phone, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)").bind(customerId, intake.customer.name, intake.customer.email, intake.customer.phone, now, now),
-        env.DB.prepare("INSERT INTO appointments (id, customer_id, requested_artist_id, status, preferred_start_at, description, revision, created_at, updated_at) VALUES (?, ?, ?, 'submitted', ?, ?, 1, ?, ?)").bind(appointmentId, customerId, requestedArtistId, intake.appointment.preferredStartAt, intake.appointment.description, now, now),
+        env.DB.prepare("INSERT INTO appointments (id, customer_id, requested_artist_id, requested_style, status, preferred_start_at, description, revision, created_at, updated_at) VALUES (?, ?, ?, ?, 'submitted', ?, ?, 1, ?, ?)").bind(appointmentId, customerId, requestedArtistId, intake.appointment.style, intake.appointment.preferredStartAt, intake.appointment.description, now, now),
         env.DB.prepare("INSERT INTO appointment_history (id, appointment_id, status, note, created_at) VALUES (?, ?, 'submitted', ?, ?)").bind(crypto.randomUUID(), appointmentId, "Public request submitted.", now),
       ]);
       return appointmentId;

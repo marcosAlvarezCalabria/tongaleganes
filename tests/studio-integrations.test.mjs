@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { isAllowedPublicOrigin, submitPublicRequest } from "../studio/use-cases.ts";
+import { fetchOptimizedAsset } from "../worker/assets.ts";
+import { normalizeSpanishPhone, replaceAppointmentStyle } from "../studio/booking.ts";
+import { isAllowedPublicOrigin, parsePublicIntake, submitPublicRequest } from "../studio/use-cases.ts";
 import { persistAvailabilityBlock, persistOperationPlan } from "../studio/adapters/d1.ts";
 import { createAppointmentHandlers } from "../app/api/crm/appointments/handlers.ts";
 
 const validIntake = {
   bookingMode: "request",
   customer: { name: "Ada Lovelace", email: "ada@example.com", phone: "+34600037560" },
-  appointment: { preferredStartAt: "2026-08-15T10:00:00.000Z", description: "Fine line botanical design" },
+  appointment: { preferredStartAt: "2026-08-15T10:00:00.000Z", description: "Fine line botanical design", style: "fineline" },
   artistPreference: { kind: "artist", artistId: "nuria-cordoba" },
   turnstileToken: "verified-token",
 };
@@ -35,6 +38,45 @@ test("accepts a verified request with no artist preference", async () => {
     { isRateLimited: async () => false, save: async () => "appointment-2", verifyHuman: async () => true },
   );
   assert.deepEqual(result, { ok: true, value: { appointmentId: "appointment-2" } });
+});
+
+test("normalizes common Spanish phone formatting and persists one selected appointment style", () => {
+  const result = parsePublicIntake({
+    ...validIntake,
+    customer: { ...validIntake.customer, phone: "+34 600 000 000" },
+    appointment: { ...validIntake.appointment, style: "fineline" },
+  });
+  assert.deepEqual(normalizeSpanishPhone("600 000 000"), "+34600000000");
+  assert.equal(replaceAppointmentStyle("fineline", "neotrad"), "neotrad");
+  assert.equal(result.ok, true);
+  if (result.ok) assert.deepEqual(result.value.appointment, { ...validIntake.appointment, style: "fineline" });
+});
+
+test("rejects invalid phone and unsupported or excessive appointment style without persistence", async () => {
+  let saves = 0;
+  const dependencies = { isRateLimited: async () => false, save: async () => (saves += 1, "unexpected"), verifyHuman: async () => true };
+  for (const payload of [
+    { ...validIntake, customer: { ...validIntake.customer, phone: "+34 600 000 000 0" }, appointment: { ...validIntake.appointment, style: "fineline" } },
+    { ...validIntake, appointment: { ...validIntake.appointment, style: "not-a-style" } },
+    { ...validIntake, appointment: { ...validIntake.appointment, style: "x".repeat(65) } },
+  ]) assert.equal((await submitPublicRequest(payload, dependencies)).ok, false);
+  assert.equal(saves, 0);
+});
+
+test("uses the official Turnstile widget and an accessible, optimized style selector", async () => {
+  const source = await readFile(new URL("../app/(public)/book/BookingForm.tsx", import.meta.url), "utf8");
+  assert.match(source, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js/);
+  assert.match(source, /aria-pressed=/);
+  assert.match(source, /<Image /);
+  assert.doesNotMatch(source, /<img /);
+  assert.match(source, /disabled=\{submitting \|\| !turnstileToken\}/);
+  assert.match(source, /maxLength=\{2000\}/);
+});
+
+test("refuses missing assets and image-endpoint recursion without global fetch fallback", async () => {
+  assert.equal((await fetchOptimizedAsset(undefined, "/images/fineline.jpg", "https://studio.test")).status, 503);
+  const assets = { fetch: async () => new Response("unexpected") };
+  assert.equal((await fetchOptimizedAsset(assets, "/_vinext/image?url=%2Fimages%2Ffineline.jpg", "https://studio.test")).status, 400);
 });
 
 test("rejects malformed, excessive, instant, and hybrid intake without persistence", async () => {
@@ -119,6 +161,7 @@ const crmHandlers = (actor) => createAppointmentHandlers({
   actor: async () => actor,
   list: async (current) => current.role === "owner" ? [crmAppointment] : [crmAppointment].filter((item) => item.assignedArtistId === current.artistId),
   find: async (id, current) => id === crmAppointment.id && (current.role === "owner" || current.artistId === crmAppointment.assignedArtistId) ? crmAppointment : null,
+  occupied: async () => [],
   save: async () => ({ ok: true, value: undefined }),
   block: async () => ({ ok: true, value: undefined }),
 });
