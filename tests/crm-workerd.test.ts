@@ -41,10 +41,10 @@ describe("test-only workerd CRM auth harness", () => {
   it("renders owner workload and privileged appointment actions without disclosing it anonymously", async () => {
     const ownerRequest = new Request("https://studio.test/crm", { headers: { accept: "text/html", "Cf-Access-Jwt-Assertion": await token("owner@test.invalid") } });
     const ownerHtml = await (await SELF.fetch(ownerRequest)).text();
-    expect(ownerHtml).toContain("Operaciones del estudio");
+    expect(ownerHtml).toContain("Panel del estudio");
     expect(ownerHtml).toContain("Ada Lovelace");
     expect(ownerHtml).toContain("Grace Hopper");
-    expect(ownerHtml).toContain("Programar cita");
+    expect(ownerHtml).toContain("Nueva cita");
     expect((await SELF.fetch("https://studio.test/crm")).status).toBe(404);
   });
   it("renders only the assigned artist workload and hides another artist detail", async () => {

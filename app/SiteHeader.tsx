@@ -1,16 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  { href: "#trabajos", label: "Trabajos" },
-  { href: "#nuria", label: "Nuria" },
-  { href: "#conoce-el-estudio", label: "Estudio" },
-  { href: "#contacto", label: "Contacto" },
+  { href: "/#trabajos", label: "Trabajos" },
+  { href: "/#nuria", label: "Nuria" },
+  { href: "/#conoce-el-estudio", label: "Estudio" },
+  { href: "/#contacto", label: "Contacto" },
 ];
 
-export function SiteHeader() {
+type SiteHeaderProps = { ctaHref?: string; ctaLabel?: string };
+
+export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita" }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -50,22 +53,22 @@ export function SiteHeader() {
       data-scrolled={scrolled ? "true" : "false"}
       data-menu-open={menuOpen ? "true" : "false"}
     >
-      <a className="brand" href="#inicio" aria-label="Tonga Tattoo, inicio" onClick={() => setMenuOpen(false)}>
-        <Image src="/images/logo.png" alt="Tonga Tattoo" width={640} height={760} priority />
-      </a>
+      <Link className="brand" href="/#inicio" aria-label="Tonga Tattoo, inicio" onClick={() => setMenuOpen(false)}>
+        <Image src="/images/logo.png" alt="Tonga Tattoo" width={640} height={760} priority unoptimized />
+      </Link>
 
       <nav id="site-navigation" aria-label="Navegación principal">
         {navigation.map((item) => (
-          <a href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
+          <Link href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
             {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
 
       <div className="header-actions">
-        <a className="header-cta" href="/book">
-          Pedir cita
-        </a>
+        <Link className="header-cta" href={ctaHref} onClick={() => setMenuOpen(false)}>
+          {ctaLabel}
+        </Link>
         <button
           className="menu-toggle"
           type="button"

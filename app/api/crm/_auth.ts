@@ -1,9 +1,13 @@
+import { getLocalDemoCrmActor } from "@/studio/dev-crm";
 import { authorizeAccessToken, createAccessKeySet, getAccessConfig } from "@/studio/auth";
 
 const accessHeader = "Cf-Access-Jwt-Assertion";
 
 export async function getCrmActor(headers: Headers) {
   const { env } = await import("cloudflare:workers");
+  const demoActor = await getLocalDemoCrmActor(headers, env);
+  if (demoActor) return demoActor;
+
   const config = getAccessConfig(env);
   if (!config) return null;
 

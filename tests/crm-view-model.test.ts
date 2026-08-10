@@ -13,9 +13,9 @@ const appointment = {
 describe("CRM page view models", () => {
   it("gives owners workload totals and scheduling actions", () => {
     const view = appointmentListView("owner", [appointment, { ...appointment, id: "appointment-grace", status: "submitted" }]);
-    expect(view.heading).toBe("Operaciones del estudio");
+    expect(view.heading).toBe("Panel del estudio");
     expect(view.summary).toBe("2 citas en seguimiento");
-    expect(view.primaryAction).toBe("Programar cita");
+    expect(view.primaryAction).toBe("Nueva cita");
   });
 
   it("gives artists only their permitted progress actions and an appointment detail", () => {

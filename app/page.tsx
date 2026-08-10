@@ -81,7 +81,7 @@ export default function Home() {
 
       <section className="manifesto" id="estudio">
         <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="120" aria-hidden="true">
-          <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" />
+          <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
           <p className="eyebrow">Tonga Tattoo</p>
@@ -112,7 +112,7 @@ export default function Home() {
 
       <section className="work-section" id="trabajos">
         <div className="parallax-backdrop work-backdrop" data-parallax data-parallax-speed="90" aria-hidden="true">
-          <Image src="/images/fine-work.jpg" alt="" fill sizes="45vw" />
+          <Image src="/images/fine-work.jpg" alt="" fill sizes="45vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
           <div className="section-heading">
@@ -126,7 +126,7 @@ export default function Home() {
             {gallery.map((item, index) => (
               <article className={item.featured ? "gallery-card gallery-card-featured" : "gallery-card"} key={item.src}>
                 <div className="gallery-image" data-parallax data-parallax-speed={index % 2 === 0 ? "64" : "44"}>
-                  <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" />
+                  <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" loading="lazy" unoptimized />
                 </div>
                 <div className="gallery-caption">
                   <h3>{item.title}</h3>
@@ -148,6 +148,8 @@ export default function Home() {
             alt="Retrato de Nuria Córdoba"
             fill
             sizes="(max-width: 900px) 100vw, 52vw"
+            loading="lazy"
+            unoptimized
           />
           <span className="artist-studio-line">Tonga Tattoo · Leganés</span>
           <span className="artist-portrait-name" aria-hidden="true">Nuria</span>
@@ -177,7 +179,7 @@ export default function Home() {
 
       <section className="testimonial">
         <div className="parallax-backdrop testimonial-backdrop" data-parallax data-parallax-speed="110" aria-hidden="true">
-          <Image src="/images/memories.jpg" alt="" fill sizes="100vw" />
+          <Image src="/images/memories.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
           <span className="quote-mark" aria-hidden="true">“</span>
@@ -190,7 +192,7 @@ export default function Home() {
 
       <section className="contact" id="contacto">
         <div className="parallax-backdrop contact-backdrop" data-parallax data-parallax-speed="100" aria-hidden="true">
-          <Image src="/images/healed-birds.jpg" alt="" fill sizes="65vw" />
+          <Image src="/images/healed-birds.jpg" alt="" fill sizes="65vw" loading="lazy" unoptimized />
         </div>
         <div className="contact-main">
           <p className="eyebrow">¿Tienes una idea?</p>
@@ -229,7 +231,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <Image src="/images/logo.png" alt="Tonga Tattoo" width={180} height={214} />
+        <Image src="/images/logo.png" alt="Tonga Tattoo" width={180} height={214} loading="lazy" unoptimized />
         <p>Arte que se queda contigo.</p>
         <span>© {new Date().getFullYear()} Tonga Tattoo</span>
       </footer>
