@@ -44,10 +44,35 @@ const gallery = [
     detail: "Selección de estudio",
   },
 ];
-
+const moreWork = [
+  {
+    src: "/images/SaveClip.App_542901394_18523073467060874_3344886948577056971_n.jpg",
+    alt: "Tatuaje reciente realizado en Tonga Tattoo Leganés",
+    title: "Pieza reciente",
+    detail: "Trabajo de estudio",
+  },
+  {
+    src: "/images/SaveClip.App_550359196_18524711494060874_6285919954784475764_n.jpg",
+    alt: "Detalle de tatuaje realizado en Tonga Tattoo Leganés",
+    title: "Detalle y sombra",
+    detail: "Nueva selección",
+  },
+  {
+    src: "/images/SaveClip.App_622045242_17986406357929220_6411781094818921976_n.jpg",
+    alt: "Trabajo de tatuaje de Tonga Tattoo Leganés",
+    title: "Composición",
+    detail: "Línea y volumen",
+  },
+  {
+    src: "/images/SaveClip.App_622408308_18051488273480109_2150560497511389574_n.jpg",
+    alt: "Tatuaje artístico realizado en Tonga Tattoo Leganés",
+    title: "Más trabajos",
+    detail: "Archivo reciente",
+  },
+];
 export default function Home() {
   return (
-    <main>
+    <main className="home-page">
       <MotionExperience />
       <SiteHeader />
 
@@ -79,6 +104,7 @@ export default function Home() {
         </div>
       </section>
 
+      <div className="home-scroll-panel">
       <section className="manifesto" id="estudio">
         <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="120" aria-hidden="true">
           <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
@@ -135,6 +161,25 @@ export default function Home() {
               </article>
             ))}
           </div>
+          <section className="more-work" aria-labelledby="more-work-title">
+            <div className="more-work-heading">
+              <p className="eyebrow">Archivo reciente</p>
+              <h3 id="more-work-title">Más trabajos del estudio.</h3>
+            </div>
+            <div className="more-work-carousel" aria-label="Más trabajos recientes">
+              {moreWork.map((item, index) => (
+                <article className="more-work-card" key={item.src}>
+                  <div className="more-work-image" data-parallax data-parallax-speed={index % 2 === 0 ? "52" : "-38"}>
+                    <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 78vw, 34vw" loading="lazy" unoptimized />
+                  </div>
+                  <div className="more-work-caption">
+                    <h4>{item.title}</h4>
+                    <span>{item.detail}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
           <a className="button button-outline" href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">
             Ver más en Instagram
           </a>
@@ -235,6 +280,7 @@ export default function Home() {
         <p>Arte que se queda contigo.</p>
         <span>© {new Date().getFullYear()} Tonga Tattoo</span>
       </footer>
+      </div>
     </main>
   );
 }
