@@ -3,18 +3,7 @@ import { MotionExperience } from "@/app/MotionExperience";
 import { SiteHeader } from "@/app/SiteHeader";
 import { BookingForm } from "./BookingForm";
 
-async function getTurnstileSiteKey() {
-  try {
-    const { env } = await import("cloudflare:workers");
-    return env.TURNSTILE_SITE_KEY ?? "";
-  } catch {
-    return process.env.TURNSTILE_SITE_KEY ?? "";
-  }
-}
-
-export default async function BookPage() {
-  const turnstileSiteKey = await getTurnstileSiteKey();
-
+export default function BookPage() {
   return (
     <main className="book-page book-page-studio">
       <MotionExperience />
@@ -57,7 +46,7 @@ export default async function BookPage() {
               <span>Solicitud de cita</span>
               <p>Completa el briefing para preparar la conversacion.</p>
             </div>
-            <BookingForm turnstileSiteKey={turnstileSiteKey} />
+            <BookingForm />
           </div>
         </div>
       </section>

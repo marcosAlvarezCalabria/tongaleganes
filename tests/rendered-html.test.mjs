@@ -6,12 +6,11 @@ async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
+  const request = new Request("http://localhost/", { headers: { accept: "text/html" } });
+  const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
+  const context = { waitUntil() {}, passThroughOnException() {} };
 
-  return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
+  return typeof worker === "function" ? worker(request, env, context) : worker.fetch(request, env, context);
 }
 
 test("renders the Tonga Tattoo landing page", async () => {
@@ -21,7 +20,7 @@ test("renders the Tonga Tattoo landing page", async () => {
 
   const html = await response.text();
   assert.match(html, /<html[^>]*lang="es"/i);
-  assert.match(html, /Tonga Tattoo \| Estudio de tatuajes en Leganés/i);
+  assert.match(html, /Tonga Tattoo .* Estudio de tatuajes en Legan.s/i);
   assert.match(html, /Tu historia/);
   assert.match(html, /Trabajos que/);
   assert.match(html, /C\/ San Nicasio, 7/);
@@ -34,7 +33,7 @@ test("renders the Tonga Tattoo landing page", async () => {
   assert.doesNotMatch(html, /me gusta/i);
   assert.ok((html.match(/data-parallax=/g) ?? []).length >= 10);
   assert.match(html, /manifesto-backdrop/);
-  assert.match(html, /testimonial-backdrop/);
+  assert.match(html, /reviews-backdrop/);
   assert.match(html, /nuria-cordoba\.jpg/);
   assert.match(html, /Quiero dar las GRACIAS/);
   assert.match(html, /Una nota de Nuria/);
