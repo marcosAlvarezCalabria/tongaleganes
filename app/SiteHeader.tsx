@@ -11,9 +11,9 @@ const navigation = [
   { href: "/#contacto", label: "Contacto" },
 ];
 
-type SiteHeaderProps = { ctaHref?: string; ctaLabel?: string };
+type SiteHeaderProps = { ctaHref?: string; ctaLabel?: string; homeHref?: string };
 
-export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita" }: SiteHeaderProps) {
+export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita", homeHref = "/#inicio" }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -53,7 +53,7 @@ export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita" }: SiteH
       data-scrolled={scrolled ? "true" : "false"}
       data-menu-open={menuOpen ? "true" : "false"}
     >
-      <Link className="brand" href="/#inicio" aria-label="Tonga Tattoo, inicio" onClick={() => setMenuOpen(false)}>
+      <Link className="brand" href={homeHref} aria-label="Tonga Tattoo, inicio" onClick={() => setMenuOpen(false)}>
         <Image src="/images/logo.png" alt="Tonga Tattoo" width={640} height={760} priority unoptimized />
       </Link>
 

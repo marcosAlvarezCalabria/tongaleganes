@@ -8,7 +8,7 @@ export default async function BookPage() {
   return (
     <main className="book-page book-page-studio">
       <MotionExperience />
-      <SiteHeader ctaHref="/#inicio" ctaLabel="Volver al inicio" />
+      <SiteHeader ctaHref="/" ctaLabel="Volver al inicio" homeHref="/" />
       <section className="studio-booking-shell" aria-labelledby="book-title">
         <div className="studio-booking-backdrop" aria-hidden="true">
           <Image src="/images/SaveClip.App_542901394_18523073467060874_3344886948577056971_n.jpg" alt="" fill sizes="100vw" priority unoptimized />
