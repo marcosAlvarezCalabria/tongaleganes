@@ -6,39 +6,47 @@ import { BookingForm } from "./BookingForm";
 export default async function BookPage() {
   const { env } = await import("cloudflare:workers");
   return (
-    <main className="book-page">
+    <main className="book-page book-page-studio">
       <MotionExperience />
       <SiteHeader ctaHref="/#inicio" ctaLabel="Volver al inicio" />
-      <section className="book-contact" aria-labelledby="book-title">
-        <div className="book-image-strip" aria-hidden="true">
-          <figure className="book-strip-left">
-            <div className="book-image-window" data-parallax data-parallax-speed="42">
-              <Image src="/images/hero/nuria-04.jpg" alt="" fill sizes="48vw" priority unoptimized />
-            </div>
-            <figcaption>Custom tattoo direction</figcaption>
-          </figure>
-          <figure className="book-strip-right">
-            <div className="book-image-window" data-parallax data-parallax-speed="-34">
-              <Image src="/images/fine-work.jpg" alt="" fill sizes="42vw" priority unoptimized />
-            </div>
-            <figcaption>Design spaces</figcaption>
-          </figure>
+      <section className="studio-booking-shell" aria-labelledby="book-title">
+        <div className="studio-booking-backdrop" aria-hidden="true">
+          <Image src="/images/SaveClip.App_542901394_18523073467060874_3344886948577056971_n.jpg" alt="" fill sizes="100vw" priority unoptimized />
         </div>
 
-        <div className="book-dot-rule" aria-hidden="true" />
+        <div className="studio-booking-layout">
+          <aside className="booking-brief-panel">
+            <p className="booking-brief-kicker">Tonga Tattoo Leganes</p>
+            <h1 id="book-title">Brief privado de tatuaje</h1>
+            <p className="booking-brief-copy">
+              Cuéntanos la pieza, la zona y el momento ideal. Revisamos tu idea y te respondemos por WhatsApp para cerrar la cita con calma.
+            </p>
 
-        <div className="book-contact-grid">
-          <aside className="book-contact-intro">
-            <p className="book-script">Reserva privada</p>
-            <h1 id="book-title">Contact</h1>
-            <p className="book-handline">Déjanos tu idea. La leemos con calma y te respondemos por WhatsApp.</p>
-            <div className="book-contact-details">
-              <span>C/ San Nicasio, 7 · Leganés</span>
-              <span>Tonga Tattoo Studio</span>
+            <div className="booking-brief-media" data-parallax data-parallax-speed="64" aria-hidden="true">
+              <Image src="/images/SaveClip.App_622408308_18051488273480109_2150560497511389574_n.jpg" alt="" fill sizes="(max-width: 900px) 100vw, 38vw" priority unoptimized />
             </div>
+
+            <dl className="booking-brief-facts" aria-label="Datos de reserva">
+              <div>
+                <dt>Respuesta</dt>
+                <dd>WhatsApp</dd>
+              </div>
+              <div>
+                <dt>Estudio</dt>
+                <dd>Leganes</dd>
+              </div>
+              <div>
+                <dt>Direccion</dt>
+                <dd>C/ San Nicasio, 7</dd>
+              </div>
+            </dl>
           </aside>
 
-          <div className="book-form-panel">
+          <div className="booking-form-stage">
+            <div className="booking-form-heading">
+              <span>Solicitud de cita</span>
+              <p>Completa el briefing para preparar la conversación.</p>
+            </div>
             <BookingForm turnstileSiteKey={env.TURNSTILE_SITE_KEY ?? ""} />
           </div>
         </div>
