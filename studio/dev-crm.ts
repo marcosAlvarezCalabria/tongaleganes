@@ -1,6 +1,7 @@
 import type { Actor } from "./ports.ts";
 
-type Statement = { bind(...values: unknown[]): Statement; first<T>(): Promise<T | null>; run(): Promise<unknown> };
+type BoundStatement = { first<T>(): Promise<T | null>; run(): Promise<unknown> };
+type Statement = { bind(...values: unknown[]): BoundStatement };
 type DevDatabase = { prepare(query: string): Statement };
 type StaffRow = { id: string; role: "owner" | "artist"; artist_id: string | null };
 
@@ -33,7 +34,7 @@ const optionalMigrations = [
 
 async function runIgnoringDuplicateColumn(database: DevDatabase, query: string) {
   try {
-    await database.prepare(query).run();
+    await database.prepare(query).bind().run();
   } catch (error) {
     if (!(error instanceof Error) || !error.message.toLowerCase().includes("duplicate column")) throw error;
   }
@@ -42,7 +43,7 @@ async function runIgnoringDuplicateColumn(database: DevDatabase, query: string) 
 async function ensureDevCrmDatabase(database: DevDatabase) {
   if (!ready) {
     ready = (async () => {
-      for (const statement of statements) await database.prepare(statement).run();
+      for (const statement of statements) await database.prepare(statement).bind().run();
       for (const statement of optionalMigrations) await runIgnoringDuplicateColumn(database, statement);
 
       await database.prepare("INSERT OR REPLACE INTO staff (id,email,role,artist_id,active,created_at,updated_at) VALUES (?,?,?,?,1,?,?)")

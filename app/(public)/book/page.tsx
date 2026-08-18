@@ -3,12 +3,22 @@ import { MotionExperience } from "@/app/MotionExperience";
 import { SiteHeader } from "@/app/SiteHeader";
 import { BookingForm } from "./BookingForm";
 
+async function getTurnstileSiteKey() {
+  try {
+    const { env } = await import("cloudflare:workers");
+    return env.TURNSTILE_SITE_KEY ?? "";
+  } catch {
+    return process.env.TURNSTILE_SITE_KEY ?? "";
+  }
+}
+
 export default async function BookPage() {
-  const { env } = await import("cloudflare:workers");
+  const turnstileSiteKey = await getTurnstileSiteKey();
+
   return (
     <main className="book-page book-page-studio">
       <MotionExperience />
-      <SiteHeader ctaHref="/" ctaLabel="Volver al inicio" homeHref="/" />
+      <SiteHeader ctaHref="/" ctaLabel="Volver atras" homeHref="/" ctaBehavior="back" />
       <section className="studio-booking-shell" aria-labelledby="book-title">
         <div className="studio-booking-backdrop" aria-hidden="true">
           <Image src="/images/SaveClip.App_542901394_18523073467060874_3344886948577056971_n.jpg" alt="" fill sizes="100vw" priority unoptimized />
@@ -19,7 +29,7 @@ export default async function BookPage() {
             <p className="booking-brief-kicker">Tonga Tattoo Leganes</p>
             <h1 id="book-title">Brief privado de tatuaje</h1>
             <p className="booking-brief-copy">
-              Cuéntanos la pieza, la zona y el momento ideal. Revisamos tu idea y te respondemos por WhatsApp para cerrar la cita con calma.
+              Cuentanos la pieza, la zona y el momento ideal. Revisamos tu idea y te respondemos por WhatsApp para cerrar la cita con calma.
             </p>
 
             <div className="booking-brief-media" data-parallax data-parallax-speed="64" aria-hidden="true">
@@ -45,9 +55,9 @@ export default async function BookPage() {
           <div className="booking-form-stage">
             <div className="booking-form-heading">
               <span>Solicitud de cita</span>
-              <p>Completa el briefing para preparar la conversación.</p>
+              <p>Completa el briefing para preparar la conversacion.</p>
             </div>
-            <BookingForm turnstileSiteKey={env.TURNSTILE_SITE_KEY ?? ""} />
+            <BookingForm turnstileSiteKey={turnstileSiteKey} />
           </div>
         </div>
       </section>

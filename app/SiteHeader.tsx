@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 
 const navigation = [
   { href: "/#trabajos", label: "Trabajos" },
@@ -11,9 +11,9 @@ const navigation = [
   { href: "/#contacto", label: "Contacto" },
 ];
 
-type SiteHeaderProps = { ctaHref?: string; ctaLabel?: string; homeHref?: string };
+type SiteHeaderProps = { ctaHref?: string; ctaLabel?: string; homeHref?: string; ctaBehavior?: "link" | "back" };
 
-export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita", homeHref = "/#inicio" }: SiteHeaderProps) {
+export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita", homeHref = "/#inicio", ctaBehavior = "link" }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -47,6 +47,18 @@ export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita", homeHre
     };
   }, []);
 
+  function handleCtaClick(event: MouseEvent<HTMLAnchorElement>) {
+    setMenuOpen(false);
+    if (ctaBehavior !== "back") return;
+
+    event.preventDefault();
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    window.location.assign(ctaHref);
+  }
   return (
     <header
       className="site-header"
@@ -66,7 +78,7 @@ export function SiteHeader({ ctaHref = "/book", ctaLabel = "Pedir cita", homeHre
       </nav>
 
       <div className="header-actions">
-        <Link className="header-cta" href={ctaHref} onClick={() => setMenuOpen(false)}>
+        <Link className="header-cta" href={ctaHref} onClick={handleCtaClick}>
           {ctaLabel}
         </Link>
         <button
