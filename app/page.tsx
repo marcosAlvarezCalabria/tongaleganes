@@ -222,19 +222,33 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="testimonial">
-        <div className="parallax-backdrop testimonial-backdrop" data-parallax data-parallax-speed="178" aria-hidden="true">
+      <section className="reviews-section" aria-labelledby="reviews-title">
+        <div className="parallax-backdrop reviews-backdrop" data-parallax data-parallax-speed="178" aria-hidden="true">
           <Image src="/images/memories.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
-        <div className="section-content">
-          <span className="quote-mark" aria-hidden="true">“</span>
-          <blockquote>
-            Pero buenoooooo… ¡grande mi gran amiga!
-          </blockquote>
-          <p><strong>@nekane2025</strong> · Comentario en Instagram</p>
+        <div className="reviews-shell">
+          <div className="reviews-score" aria-label="Valoración media aproximada en listados públicos">
+            <span>4,8</span>
+            <strong>/5</strong>
+            <p>Más de 240 opiniones públicas</p>
+          </div>
+          <div className="reviews-copy">
+            <p className="eyebrow">Reseñas de clientes</p>
+            <h2 id="reviews-title">La confianza también se nota antes de tatuar.</h2>
+            <p>
+              En las opiniones públicas sobre Tonga Tattoo Leganés se repiten tres ideas: trato cercano, explicación clara del proceso y un estudio cuidado para vivir el tatuaje con calma.
+            </p>
+            <div className="review-themes" aria-label="Temas destacados en las reseñas">
+              <span>Trato profesional</span>
+              <span>Primera experiencia cuidada</span>
+              <span>Higiene y confianza</span>
+            </div>
+            <a className="button button-outline review-link" href="https://www.google.com/search?q=Tonga+Tattoo+Legan%C3%A9s+rese%C3%B1as" target="_blank" rel="noreferrer">
+              Ver reseñas en Google
+            </a>
+          </div>
         </div>
       </section>
-
       <section className="contact" id="contacto">
         <div className="parallax-backdrop contact-backdrop" data-parallax data-parallax-speed="165" aria-hidden="true">
           <Image src="/images/healed-birds.jpg" alt="" fill sizes="65vw" loading="lazy" unoptimized />

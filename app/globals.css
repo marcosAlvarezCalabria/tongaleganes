@@ -177,14 +177,23 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 .button-artist { width: max-content; margin-top: 42px; background: var(--gold); color: var(--ink); }
 .button-artist:hover { background: #dfa02f; }
 
-.testimonial { position: relative; isolation: isolate; min-height: 610px; padding: 100px 8vw 115px; display: grid; place-items: center; overflow: hidden; text-align: center; background: #e7ded0; }
-.testimonial-backdrop { inset: -18% 0; opacity: .38; }
-.testimonial-backdrop::after { content: ""; position: absolute; inset: 0; background: rgba(231,222,208,.38); }
-.testimonial-backdrop img { filter: grayscale(.65) contrast(1.08); }
-.quote-mark { display: block; height: 70px; color: var(--gold); font-family: var(--font-display), serif; font-size: 110px; line-height: 1; }
-.testimonial blockquote { max-width: 900px; margin: 10px auto 28px; font-size: clamp(38px, 5vw, 70px); line-height: 1.05; letter-spacing: -.035em; }
-.testimonial p { color: var(--muted); font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
-.testimonial strong { color: var(--ink); }
+.reviews-section { position: relative; isolation: isolate; min-height: 620px; padding: 105px 6vw 120px; overflow: hidden; background: #111; color: var(--white); }
+.reviews-backdrop { inset: -18% 0; opacity: .3; }
+.reviews-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,10,10,.94), rgba(10,10,10,.76) 48%, rgba(185,139,58,.34)); }
+.reviews-backdrop img { filter: grayscale(.72) contrast(1.08); }
+.reviews-shell { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(230px, .42fr) minmax(0, .8fr); gap: clamp(36px, 7vw, 105px); align-items: center; max-width: 1120px; margin: 0 auto; }
+.reviews-score { min-height: 340px; display: grid; align-content: center; justify-items: start; padding: clamp(30px, 5vw, 56px); border: 1px solid rgba(209,161,78,.46); background: rgba(12,10,8,.78); box-shadow: 0 30px 90px rgba(0,0,0,.38); }
+.reviews-score span { font-family: var(--font-display), serif; font-size: clamp(88px, 13vw, 170px); line-height: .78; color: var(--gold); letter-spacing: -.035em; }
+.reviews-score strong { margin-top: 12px; font-family: var(--font-sans), sans-serif; font-size: clamp(18px, 2.2vw, 26px); color: #f3ead8; }
+.reviews-score p { max-width: 190px; margin-top: 28px; color: #cfc5b3; font-size: 12px; line-height: 1.8; letter-spacing: .1em; text-transform: uppercase; }
+.reviews-copy { max-width: 680px; }
+.reviews-copy .eyebrow { color: var(--gold); }
+.reviews-copy h2 { max-width: 720px; margin-top: 18px; color: var(--white); font-size: clamp(44px, 6.5vw, 86px); line-height: .92; letter-spacing: -.035em; }
+.reviews-copy > p:not(.eyebrow) { max-width: 620px; margin-top: 30px; color: #e5d9c8; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.85; }
+.review-themes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.review-themes span { padding: 11px 14px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #f4ead7; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.review-link.button-outline { margin: 42px 0 0; border-color: var(--gold); color: var(--gold); }
+.review-link.button-outline:hover { background: var(--gold); color: var(--ink); }
 
 .contact { position: relative; isolation: isolate; display: grid; grid-template-columns: 1.25fr .75fr; overflow: hidden; background: var(--gold); }
 .contact-backdrop { inset: -24% 25% -24% -8%; opacity: .38; }
@@ -301,7 +310,9 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   .artist-story { padding: 75px 6vw 85px; }
   .artist-links a { grid-template-columns: 82px 1fr; }
   .artist-links strong { font-size: 19px; }
-  .testimonial { padding: 75px 6vw 90px; }
+  .reviews-section { padding: 78px 6vw 92px; min-height: auto; }
+  .reviews-shell { grid-template-columns: 1fr; }
+  .reviews-score { min-height: 0; }
   .contact-main { padding: 80px 6vw; }
   .contact address { padding: 60px 8vw; }
   .thanks-section { padding: 85px 6vw 75px; row-gap: 46px; }
