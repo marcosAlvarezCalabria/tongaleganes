@@ -1760,11 +1760,17 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   .book-page-studio .form-grid { grid-template-columns: 1fr; }
   .book-page-studio .style-card {
     min-height: 0;
-    grid-template-columns: 118px minmax(0, 1fr);
-    grid-template-rows: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
   }
-  .book-page-studio .style-card-image { min-height: 128px; }
-  .book-page-studio .style-card-content { min-height: 0; }
+  .book-page-studio .style-card-image {
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+  }
+  .book-page-studio .style-card-content {
+    min-height: 0;
+    padding: 15px 14px 16px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
