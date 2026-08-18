@@ -70,6 +70,24 @@ const moreWork = [
     detail: "Archivo reciente",
   },
 ];
+const reviewHighlights = [
+  {
+    quote: "Me he tatuado varias veces y seguiré.",
+    author: "José García",
+    note: "Cliente recurrente",
+  },
+  {
+    quote: "Me explicó todo antes de hacerlo.",
+    author: "Reseña pública",
+    note: "Primera experiencia",
+  },
+  {
+    quote: "El trato espectacular.",
+    author: "Pilar Cabrera",
+    note: "Experiencia con Nuria",
+  },
+];
+
 export default function Home() {
   return (
     <main className="home-page">
@@ -242,6 +260,17 @@ export default function Home() {
               <span>Trato profesional</span>
               <span>Primera experiencia cuidada</span>
               <span>Higiene y confianza</span>
+            </div>
+            <div className="review-cards" aria-label="Extractos de reseñas públicas">
+              {reviewHighlights.map((review) => (
+                <figure className="review-card" key={`${review.author}-${review.quote}`}>
+                  <blockquote><span aria-hidden="true">“</span>{review.quote}<span aria-hidden="true">”</span></blockquote>
+                  <figcaption>
+                    <strong>{review.author}</strong>
+                    <span>{review.note}</span>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
             <a className="button button-outline review-link" href="https://www.google.com/search?q=Tonga+Tattoo+Legan%C3%A9s+rese%C3%B1as" target="_blank" rel="noreferrer">
               Ver reseñas en Google
