@@ -151,7 +151,7 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 .gallery-card-featured { grid-column: span 2; }
 .gallery-image { --parallax-y: 0px; position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #ddd5ca; }
 .gallery-card-featured .gallery-image { aspect-ratio: 8 / 5; }
-.gallery-image img { object-fit: cover; filter: saturate(.75); transform: translate3d(0, var(--parallax-y), 0) scale(1.13); will-change: transform; transition: filter .5s ease; }
+.gallery-image img { object-fit: cover; filter: saturate(.75); transform: translate3d(0, var(--parallax-y), 0) scale(1.19); will-change: transform; transition: filter .5s ease; }
 .gallery-card:hover img { filter: saturate(1); }
 .gallery-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 15px; padding: 17px 2px; border-bottom: 1px solid rgba(23,21,18,.15); }
 .gallery-caption h3 { margin: 0; font-family: var(--font-display), serif; font-size: 26px; font-weight: 600; }
@@ -161,7 +161,7 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 
 .artist-feature { display: grid; grid-template-columns: 52% 48%; min-height: 820px; background: var(--ink); color: var(--white); overflow: hidden; }
 .artist-portrait { --parallax-y: 0px; position: relative; min-height: 920px; overflow: hidden; background: var(--gold); }
-.artist-portrait img { object-fit: cover; object-position: center; transform: translate3d(0, var(--parallax-y), 0) scale(1.12); filter: saturate(.82) contrast(1.05); will-change: transform; }
+.artist-portrait img { object-fit: cover; object-position: center; transform: translate3d(0, var(--parallax-y), 0) scale(1.18); filter: saturate(.82) contrast(1.05); will-change: transform; }
 .artist-portrait::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,21,18,.08), transparent 42%, rgba(23,21,18,.66)); pointer-events: none; }
 .artist-studio-line { position: absolute; z-index: 2; top: 42px; left: clamp(26px, 4vw, 62px); padding: 10px 13px; background: var(--gold); color: var(--ink); font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .artist-portrait-name { position: absolute; z-index: 2; right: clamp(22px, 4vw, 58px); bottom: 28px; color: var(--white); font-family: var(--font-display), serif; font-size: clamp(74px, 10vw, 146px); font-style: italic; line-height: .8; letter-spacing: -.04em; }
@@ -1160,7 +1160,7 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   background: var(--book-blush);
 }
 .book-image-window img {
-  transform: translate3d(0, var(--parallax-y), 0) scale(1.14);
+  transform: translate3d(0, var(--parallax-y), 0) scale(1.21);
   will-change: transform;
   transition: filter .5s ease;
 }
@@ -1254,7 +1254,7 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
 .more-work-image img {
   object-fit: cover;
   filter: saturate(.82) contrast(1.08);
-  transform: translate3d(0, var(--parallax-y), 0) scale(1.14);
+  transform: translate3d(0, var(--parallax-y), 0) scale(1.21);
   will-change: transform;
   transition: filter .5s ease;
 }

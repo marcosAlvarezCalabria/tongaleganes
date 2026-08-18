@@ -106,7 +106,7 @@ export default function Home() {
 
       <div className="home-scroll-panel">
       <section className="manifesto" id="estudio">
-        <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="120" aria-hidden="true">
+        <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="190" aria-hidden="true">
           <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
@@ -130,14 +130,14 @@ export default function Home() {
             </p>
             <span className="studio-tour-scroll" aria-hidden="true">Desliza para recorrer</span>
           </div>
-          <div className="studio-media" data-parallax data-parallax-speed="34">
+          <div className="studio-media" data-parallax data-parallax-speed="72">
             <StudioTour />
           </div>
         </div>
       </section>
 
       <section className="work-section" id="trabajos">
-        <div className="parallax-backdrop work-backdrop" data-parallax data-parallax-speed="90" aria-hidden="true">
+        <div className="parallax-backdrop work-backdrop" data-parallax data-parallax-speed="150" aria-hidden="true">
           <Image src="/images/fine-work.jpg" alt="" fill sizes="45vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
@@ -151,7 +151,7 @@ export default function Home() {
           <div className="gallery">
             {gallery.map((item, index) => (
               <article className={item.featured ? "gallery-card gallery-card-featured" : "gallery-card"} key={item.src}>
-                <div className="gallery-image" data-parallax data-parallax-speed={index % 2 === 0 ? "64" : "44"}>
+                <div className="gallery-image" data-parallax data-parallax-speed={index % 2 === 0 ? "112" : "78"}>
                   <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 100vw, 33vw" loading="lazy" unoptimized />
                 </div>
                 <div className="gallery-caption">
@@ -169,7 +169,7 @@ export default function Home() {
             <div className="more-work-carousel" aria-label="Más trabajos recientes">
               {moreWork.map((item, index) => (
                 <article className="more-work-card" key={item.src}>
-                  <div className="more-work-image" data-parallax data-parallax-speed={index % 2 === 0 ? "52" : "-38"}>
+                  <div className="more-work-image" data-parallax data-parallax-speed={index % 2 === 0 ? "108" : "-86"}>
                     <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 78vw, 34vw" loading="lazy" unoptimized />
                   </div>
                   <div className="more-work-caption">
@@ -187,7 +187,7 @@ export default function Home() {
       </section>
 
       <section className="artist-feature" id="nuria">
-        <div className="artist-portrait" data-parallax data-parallax-speed="82">
+        <div className="artist-portrait" data-parallax data-parallax-speed="150">
           <Image
             src="/images/nuria-cordoba.jpg"
             alt="Retrato de Nuria Córdoba"
@@ -223,7 +223,7 @@ export default function Home() {
       </section>
 
       <section className="testimonial">
-        <div className="parallax-backdrop testimonial-backdrop" data-parallax data-parallax-speed="110" aria-hidden="true">
+        <div className="parallax-backdrop testimonial-backdrop" data-parallax data-parallax-speed="178" aria-hidden="true">
           <Image src="/images/memories.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
@@ -236,7 +236,7 @@ export default function Home() {
       </section>
 
       <section className="contact" id="contacto">
-        <div className="parallax-backdrop contact-backdrop" data-parallax data-parallax-speed="100" aria-hidden="true">
+        <div className="parallax-backdrop contact-backdrop" data-parallax data-parallax-speed="165" aria-hidden="true">
           <Image src="/images/healed-birds.jpg" alt="" fill sizes="65vw" loading="lazy" unoptimized />
         </div>
         <div className="contact-main">
