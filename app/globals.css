@@ -1160,7 +1160,7 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   background: var(--book-blush);
 }
 .book-image-window img {
-  transform: translate3d(0, var(--parallax-y), 0) scale(1.21);
+  transform: translate3d(0, var(--parallax-y), 0) scale(1.14);
   will-change: transform;
   transition: filter .5s ease;
 }
