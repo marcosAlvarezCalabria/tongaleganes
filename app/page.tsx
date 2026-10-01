@@ -5,6 +5,19 @@ import { MotionExperience } from "./MotionExperience";
 import { SiteHeader } from "./SiteHeader";
 import { StudioTour } from "./StudioTour";
 
+const heroMarqueeImages = [
+  "/images/hero/nuria-01.jpg",
+  "/images/retrato-tribal.jpg",
+  "/images/hero/nuria-02.jpg",
+  "/images/calavera-samurai.jpg",
+  "/images/hero/nuria-03.jpg",
+  "/images/lobo-flores.jpg",
+  "/images/hero/nuria-04.jpg",
+  "/images/iguana-realismo.jpg",
+  "/images/hero/nuria-05.jpg",
+  "/images/retrato-anime.jpg",
+];
+
 const gallery = [
   {
     src: "/images/featured.jpg",
@@ -138,15 +151,24 @@ export default function Home() {
 
       <section className="hero hero-3d-only" id="inicio" aria-label="Tonga Tattoo — Nuria Córdoba">
         <div className="hero-visual hero-visual-3d">
-          <Image
-            src="/images/hero-poster.webp"
-            alt="Firma de Nuria Córdoba"
-            fill
-            priority
-            sizes="100vw"
-            unoptimized
-            className="hero-visual-poster"
-          />
+          <div className="hero-marquee" aria-hidden="true">
+            <div className="hero-marquee-track">
+              {[...heroMarqueeImages, ...heroMarqueeImages].map((src, index) => (
+                <div className="hero-marquee-tile" key={`${src}-${index}`}>
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    priority={index < 4}
+                    sizes="360px"
+                    unoptimized
+                    className="hero-marquee-img"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="hero-visual-overlay" aria-hidden="true" />
           <LogoHero3D />
         </div>
         <a className="hero-scroll-cue" href="#estudio" aria-label="Bajar al contenido">
