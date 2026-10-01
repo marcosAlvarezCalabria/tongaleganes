@@ -136,25 +136,7 @@ export default function Home() {
       <MotionExperience />
       <SiteHeader />
 
-      <section className="hero" id="inicio">
-        <div className="hero-copy">
-          <p className="eyebrow">Estudio de tatuajes · Leganés</p>
-          <h1>Tu historia,<br /><em>en la piel.</em></h1>
-          <p className="hero-intro">
-            Tatuajes únicos, diseñados contigo y ejecutados con precisión. Especialistas en
-            realismo, fine line y proyectos de gran formato.
-          </p>
-          <div className="hero-actions">
-            <a className="button button-primary" href="/book">
-              Cuéntanos tu idea
-            </a>
-            <a className="text-link" href="#trabajos">Ver trabajos <span aria-hidden="true">↓</span></a>
-          </div>
-          <div className="hero-proof" aria-label="Datos destacados">
-            <div><strong>3.8K</strong><span>Comunidad en Instagram</span></div>
-            <div><strong>100%</strong><span>Diseños personalizados</span></div>
-          </div>
-        </div>
+      <section className="hero hero-3d-only" id="inicio" aria-label="Tonga Tattoo — Nuria Córdoba">
         <div className="hero-visual hero-visual-3d">
           <Image
             src="/images/hero-poster.webp"
@@ -166,11 +148,10 @@ export default function Home() {
             className="hero-visual-poster"
           />
           <LogoHero3D />
-          <div className="image-badge">
-            <span>Firma de</span>
-            <strong>Nuria Córdoba</strong>
-          </div>
         </div>
+        <a className="hero-scroll-cue" href="#estudio" aria-label="Bajar al contenido">
+          <span aria-hidden="true">↓</span>
+        </a>
       </section>
 
       <div className="home-scroll-panel">
