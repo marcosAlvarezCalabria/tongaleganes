@@ -231,10 +231,14 @@ window.addEventListener('orientationchange', () => setTimeout(fitCamera, 200));
    giro automático que ya trae el stage. */
 window.addEventListener('message', (e) => {
   if (e.origin !== location.origin) return;
-  if (e.data?.type !== 'logo-hero:scroll') return;
-  const p = Math.max(0, Math.min(1, e.data.progress));
-  root.rotation.x = -p * 0.45;
-  root.position.y = -p * 0.1;
+  const d = e.data || {};
+  if (d.type === 'logo-hero:scroll') {
+    const p = Math.max(0, Math.min(1, d.progress));
+    root.rotation.x = -p * 0.45;
+    root.position.y = -p * 0.1;
+  } else if (d.type === 'logo-hero:spin' && typeof d.deltaYaw === 'number') {
+    root.rotation.y += d.deltaYaw;
+  }
 });
 
 /* Avisar al padre (Next.js) cuando el modelo está listo, para quitar el fallback/loader */

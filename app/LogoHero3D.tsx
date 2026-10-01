@@ -63,6 +63,79 @@ export function LogoHero3D() {
     };
   }, []);
 
+  // Arrastrar hacia los lados gira el logo; arrastrar hacia arriba/abajo
+  // tiene que seguir haciendo scroll de la página con total normalidad.
+  // "touch-action: pan-y" en el CSS deja el scroll vertical al navegador
+  // (sin que JS tenga que tocarlo) y solo interceptamos el gesto cuando,
+  // tras unos px, queda claro que es horizontal.
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+
+    let active = false;
+    let decided: "none" | "horizontal" | "vertical" = "none";
+    let startX = 0;
+    let startY = 0;
+    let lastX = 0;
+    const THRESHOLD = 8;
+    const SENSITIVITY = 0.012;
+
+    function spin(deltaYaw: number) {
+      frameRef.current?.contentWindow?.postMessage(
+        { type: "logo-hero:spin", deltaYaw },
+        window.location.origin,
+      );
+    }
+
+    function onPointerDown(e: PointerEvent) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      active = true;
+      decided = "none";
+      startX = lastX = e.clientX;
+      startY = e.clientY;
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (!active) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (decided === "none") {
+        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) return;
+        decided = Math.abs(dx) > Math.abs(dy) ? "horizontal" : "vertical";
+        if (decided === "horizontal") {
+          el?.setPointerCapture?.(e.pointerId);
+        } else {
+          active = false; // gesto vertical: lo soltamos, que haga scroll el navegador
+          return;
+        }
+      }
+
+      if (decided === "horizontal") {
+        e.preventDefault();
+        const stepX = e.clientX - lastX;
+        lastX = e.clientX;
+        spin(stepX * SENSITIVITY);
+      }
+    }
+
+    function onPointerUp() {
+      active = false;
+      decided = "none";
+    }
+
+    el.addEventListener("pointerdown", onPointerDown, { passive: true });
+    el.addEventListener("pointermove", onPointerMove, { passive: false });
+    el.addEventListener("pointerup", onPointerUp, { passive: true });
+    el.addEventListener("pointercancel", onPointerUp, { passive: true });
+    return () => {
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", onPointerUp);
+      el.removeEventListener("pointercancel", onPointerUp);
+    };
+  }, []);
+
   return (
     <div className="hero-3d-wrap" data-ready={ready ? "true" : "false"} ref={wrapRef}>
       {!ready && !timedOut && <div className="hero-3d-loading" aria-hidden="true" />}
