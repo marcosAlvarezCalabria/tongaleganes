@@ -69,6 +69,48 @@ const moreWork = [
     title: "Más trabajos",
     detail: "Archivo reciente",
   },
+  {
+    src: "/images/escudo-alado.jpg",
+    alt: "Tatuaje de escudo con alas realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Realismo deportivo",
+    detail: "Escudo con alas",
+  },
+  {
+    src: "/images/tortuga-ilustrativa.jpg",
+    alt: "Tatuaje ilustrativo de una tortuga realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Ilustrativo",
+    detail: "Pieza con humor",
+  },
+  {
+    src: "/images/lobo-flores.jpg",
+    alt: "Tatuaje de lobo con flores realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Realismo y fine line",
+    detail: "Retrato animal",
+  },
+  {
+    src: "/images/retrato-tribal.jpg",
+    alt: "Tatuaje de retrato femenino con motivos tribales realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Retrato realista",
+    detail: "Diseño facial",
+  },
+  {
+    src: "/images/calavera-samurai.jpg",
+    alt: "Tatuaje de calavera samurai de gran formato realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Neo-tradicional",
+    detail: "Pieza de gran formato",
+  },
+  {
+    src: "/images/iguana-realismo.jpg",
+    alt: "Tatuaje realista de iguana realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Realismo natural",
+    detail: "Detalle de escamas",
+  },
+  {
+    src: "/images/retrato-anime.jpg",
+    alt: "Tatuaje de retrato femenino estilo semi-anime realizado por Nuria Córdoba en Tonga Tattoo",
+    title: "Retrato realista",
+    detail: "Estilo semi-anime",
+  },
 ];
 const reviewHighlights = [
   {
