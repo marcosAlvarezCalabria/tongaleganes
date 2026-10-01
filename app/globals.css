@@ -4,6 +4,7 @@
   --gold: #cf8917;
   --gold-dark: #a5680c;
   --ink: #171512;
+  --ink-soft: #2b241c;
   --paper: #f7f3eb;
   --white: #fffdf9;
   --muted: #766f64;
@@ -134,14 +135,14 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 .parallax-backdrop { --parallax-y: 0px; position: absolute; z-index: 0; pointer-events: none; transform: translate3d(0, var(--parallax-y), 0); will-change: transform; }
 .parallax-backdrop img { object-fit: cover; }
 
-.manifesto { position: relative; isolation: isolate; min-height: 720px; padding: 130px 8vw; display: grid; place-items: center; overflow: hidden; text-align: center; background: var(--ink); color: var(--white); }
-.manifesto-backdrop { inset: -12% 0; opacity: .44; }
-.manifesto-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(23,21,18,.86), rgba(23,21,18,.3) 50%, rgba(23,21,18,.86)); }
+.manifesto { position: relative; isolation: isolate; min-height: 720px; padding: 130px 8vw; display: grid; place-items: center; overflow: hidden; text-align: center; background: var(--ink-soft); color: var(--white); }
+.manifesto-backdrop { inset: -12% 0; opacity: .62; }
+.manifesto-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(23,21,18,.58), rgba(23,21,18,.14) 50%, rgba(23,21,18,.58)); }
 .manifesto-backdrop img { filter: grayscale(.35) contrast(1.15); }
 .manifesto h2 { margin: 0; font-size: clamp(50px, 6.5vw, 94px); line-height: .95; letter-spacing: -.04em; }
 .manifesto .section-content > p:last-child { max-width: 690px; margin: 42px auto 0; color: #d3ccc1; line-height: 1.9; }
 
-.studio-tour { min-height: 185vh; background: var(--ink); color: var(--white); }
+.studio-tour { min-height: 185vh; background: var(--ink-soft); color: var(--white); }
 .studio-tour-stage { position: sticky; top: 0; height: 100svh; padding: 6vw; display: grid; grid-template-columns: minmax(260px, .62fr) minmax(0, 1.38fr); gap: clamp(38px, 7vw, 120px); align-items: center; overflow: hidden; }
 .studio-tour-copy { position: relative; z-index: 2; }
 .studio-tour-kicker { margin: 0 0 26px; color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
@@ -178,10 +179,10 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 .button-outline { display: flex; width: max-content; margin: 58px auto 0; border: 1px solid var(--ink); }
 .button-outline:hover { background: var(--ink); color: var(--white); }
 
-.artist-feature { display: grid; grid-template-columns: 52% 48%; min-height: 820px; background: var(--ink); color: var(--white); overflow: hidden; }
+.artist-feature { display: grid; grid-template-columns: 52% 48%; min-height: 820px; background: var(--ink-soft); color: var(--white); overflow: hidden; }
 .artist-portrait { --parallax-y: 0px; position: relative; min-height: 920px; overflow: hidden; background: var(--gold); }
-.artist-portrait img { object-fit: cover; object-position: center; transform: translate3d(0, var(--parallax-y), 0) scale(1.18); filter: saturate(.82) contrast(1.05); will-change: transform; }
-.artist-portrait::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,21,18,.08), transparent 42%, rgba(23,21,18,.66)); pointer-events: none; }
+.artist-portrait img { object-fit: cover; object-position: center; transform: translate3d(0, var(--parallax-y), 0) scale(1.18); filter: saturate(.9) contrast(1.05) brightness(1.08); will-change: transform; }
+.artist-portrait::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,21,18,.05), transparent 42%, rgba(23,21,18,.48)); pointer-events: none; }
 .artist-studio-line { position: absolute; z-index: 2; top: 42px; left: clamp(26px, 4vw, 62px); padding: 10px 13px; background: var(--gold); color: var(--ink); font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .artist-portrait-name { position: absolute; z-index: 2; right: clamp(22px, 4vw, 58px); bottom: 28px; color: var(--white); font-family: var(--font-display), serif; font-size: clamp(74px, 10vw, 146px); font-style: italic; line-height: .8; letter-spacing: -.04em; }
 .artist-story { padding: 110px clamp(38px, 7vw, 110px); display: flex; flex-direction: column; justify-content: center; }
