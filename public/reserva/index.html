@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Dónde va tu tatuaje?</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="brand.css">
+<style>
+  three-d-stage:not(:defined){visibility:hidden}
+  html,body{margin:0;height:100%}
+  body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+  a{color:var(--color-accent-700)} a:hover{color:var(--color-accent-800)}
+  .app{display:grid;grid-template-columns:minmax(0,1fr) 400px;height:100vh}
+  .viewer{position:relative;min-height:0}
+  three-d-stage{display:block;width:100%;height:100%}
+  .views{position:absolute;top:var(--space-3);left:var(--space-3);z-index:2}
+  .tip{position:absolute;z-index:3;pointer-events:none;transform:translate(14px,-50%);padding:5px 12px;border-radius:999px;background:var(--color-text);color:var(--color-bg);font-size:13px;white-space:nowrap;opacity:0;transition:opacity .12s}
+  .tip.on{opacity:1}
+  .panel{display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-8) var(--space-6);overflow-y:auto;background:var(--color-surface);border-radius:calc(var(--radius-lg)*1.6) 0 0 calc(var(--radius-lg)*1.6)}
+  .kicker{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)}
+  h1{font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.05;margin:6px 0 10px;text-wrap:balance}
+  .lead{margin:0;font-size:15px;line-height:1.5;color:var(--color-neutral-700);text-wrap:pretty}
+  .sec{display:flex;flex-direction:column;gap:10px}
+  .sec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:600}
+  .sel{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:flex-start}
+  .sel .empty{flex:1 1 100%;font-size:14px;color:var(--color-neutral-600)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;border-radius:999px;border:0;background:var(--color-accent);color:var(--color-bg);font:inherit;font-size:13px;cursor:pointer}
+  .pill:hover{background:var(--color-accent-600)}
+  .pill svg{width:14px;height:14px}
+  .pill:focus-visible,.chip:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+  details{border-radius:var(--radius-lg);background:var(--color-bg);padding:4px 14px}
+  summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;font-weight:600}
+  summary::-webkit-details-marker{display:none}
+  summary .n{font-weight:400;font-size:12px;color:var(--color-accent-700)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 14px}
+  .chip{padding:6px 12px;border-radius:999px;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);font:inherit;font-size:13px;cursor:pointer}
+  .chip:hover{background:var(--color-accent-100)}
+  .chip[aria-pressed="true"]{background:var(--color-accent);border-color:var(--color-accent);color:var(--color-bg)}
+  .seg{display:flex;width:100%} .seg-opt{flex:1;justify-content:center}
+  .views .seg{width:auto;background:var(--color-bg);box-shadow:var(--shadow-sm)}
+  .foot{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+  .dialog-backdrop[hidden]{display:none}
+  @media (max-width:820px){.app{grid-template-columns:minmax(0,1fr);height:auto}.viewer{height:72vh;height:72svh;display:flex;flex-direction:column;min-width:0}three-d-stage{width:100%;min-width:0;overflow:hidden}.views{position:static!important;padding:12px 12px 0;justify-content:center}.views .seg{flex:0 0 auto}three-d-stage{flex:1;min-height:0;height:auto}.panel{border-radius:calc(var(--radius-lg)*1.6) calc(var(--radius-lg)*1.6) 0 0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="viewer" id="viewer">
+    <div class="views" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <div class="seg" role="radiogroup" aria-label="Cuerpo">
+        <label class="seg-opt"><input type="radio" name="body" value="hombre" checked>Hombre</label>
+        <label class="seg-opt"><input type="radio" name="body" value="mujer">Mujer</label>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Vista">
+        <label class="seg-opt"><input type="radio" name="view" value="0" checked>Frente</label>
+        <label class="seg-opt"><input type="radio" name="view" value="180">Espalda</label>
+        <label class="seg-opt"><input type="radio" name="view" value="90">Izquierda</label>
+        <label class="seg-opt"><input type="radio" name="view" value="-90">Derecha</label>
+      </div>
+    </div>
+    <three-d-stage name="cuerpo-zonas-tatuaje"></three-d-stage>
+    <div class="tip" id="tip"></div>
+    <div id="loading" style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-heading);font-size:22px;text-transform:uppercase;letter-spacing:.1em;color:var(--color-neutral-600);pointer-events:none">Cargando el cuerpo…</div>
+  </div>
+
+  <aside class="panel">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="kicker">Reserva de tatuaje</div><button class="btn btn-secondary btn-icon" id="closeEmbed" type="button" aria-label="Cerrar" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <h1>¿Dónde va tu tatuaje?</h1>
+      <p class="lead">Elige hombre o mujer, gira el cuerpo y toca las zonas que quieres tatuar. Puedes elegir varias. Izquierda y derecha son las tuyas.</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span>Tu selección</span><button class="btn btn-ghost" id="clear" type="button">Borrar todo</button></div>
+      <div class="sel" id="sel"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span>Tamaño aproximado</span></div>
+      <div class="seg" role="radiogroup" aria-label="Tamaño">
+        <label class="seg-opt"><input type="radio" name="size" value="Pequeño" checked>Pequeño</label>
+        <label class="seg-opt"><input type="radio" name="size" value="Mediano">Mediano</label>
+        <label class="seg-opt"><input type="radio" name="size" value="Grande">Grande</label>
+        <label class="seg-opt"><input type="radio" name="size" value="Cobertura">Cobertura</label>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span>O elige de la lista</span></div>
+      <div id="groups" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <div class="sec" id="datos">
+      <div class="field"><label for="nombre">Tu nombre</label><input class="input" id="nombre" type="text" autocomplete="name" placeholder="Nombre"></div>
+      <div class="field"><label for="idea">Tu idea (opcional)</label><textarea class="input" id="idea" rows="3" placeholder="Estilo, motivo, referencias…"></textarea></div>
+    </div>
+
+    <div class="foot">
+      <button class="btn btn-primary btn-block" id="go" type="button" disabled>Revisar y enviar por WhatsApp</button>
+    </div>
+  </aside>
+</div>
+
+<div class="dialog-backdrop" id="dlg" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
+    <div class="dialog-title" id="dlg-t">Tu solicitud</div>
+    <div class="dialog-body" id="dlg-b"></div>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" type="button" id="dlg-x">Volver</button>
+      <button class="btn btn-primary" type="button" id="dlg-ok">Enviar por WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Botón de cerrar de la ventana emergente: se activa al instante, sin esperar a que cargue el modelo 3D */
+if (parent !== window) {
+  const cb = document.getElementById('closeEmbed'); cb.hidden = false;
+  cb.addEventListener('click', () => parent.postMessage({ type: 'tattoo-reserva:cerrar' }, location.origin));
+}
+</script>
+<script src="three-d-stage.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const css = getComputedStyle(document.documentElement);
+const tok = (n, f) => (css.getPropertyValue(n).trim() || f);
+stage.style.setProperty('--stage-bg', tok('--stage-color', tok('--color-neutral-900', '#2e2b25')));
+const { THREE } = await stage.ready;
+/* Sin botones de descarga del modelo para el cliente; nota legible sobre fondo claro */
+{ const sr = stage.shadowRoot, st = document.createElement('style');
+  st.textContent = '.toolbar{display:none!important}.note{color:#5d5d60!important;font-family:Barlow,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;font-size:11px}';
+  sr.appendChild(st); }
+await new Promise((r) => setTimeout(r, 60));
+
+const SKIN = new THREE.Color('#e9e7e3');
+const ACCENT = new THREE.Color(tok('--zone-selected', tok('--color-accent', '#c67139')));
+const HOVER = new THREE.Color(tok('--zone-hover', tok('--color-accent-300', '#e0a57c')));
+const PI = Math.PI, TAU = PI * 2;
+const baseMat = new THREE.MeshStandardMaterial({ color: SKIN, roughness: 0.38, metalness: 0, side: THREE.DoubleSide });
+
+const zones = {}; const order = []; const pickables = [];
+function zone(id, name, group) {
+  if (!zones[id]) {
+    const mat = baseMat.clone(); mat.name = 'piel_' + id;
+    zones[id] = { id, name, group, mat, selected: false };
+    order.push(id);
+  }
+  return zones[id];
+}
+
+/* Registro de zonas (orden del panel) */
+const HC = 'Cabeza y cuello', T = 'Torso';
+zone('cabeza','Cabeza',HC); zone('cuello','Cuello',HC); zone('nuca','Nuca',HC);
+zone('pecho_izq','Pecho izq.',T); zone('pecho_der','Pecho der.',T); zone('abdomen','Abdomen',T);
+zone('costillas_izq','Costillas izq.',T); zone('costillas_der','Costillas der.',T);
+zone('espalda_alta','Espalda alta',T); zone('lumbar','Zona lumbar',T); zone('cadera','Cadera / pelvis',T); zone('gluteos','Glúteos',T);
+for (const s of [1, -1]) {
+  const sd = s > 0 ? 'izq.' : 'der.', K = s > 0 ? '_izq' : '_der', G = s > 0 ? 'Brazo izquierdo' : 'Brazo derecho';
+  [['hombro','Hombro'],['biceps','Bíceps'],['triceps','Tríceps'],['codo','Codo'],['antebrazo_int','Antebrazo interior'],['antebrazo_ext','Antebrazo exterior'],['muneca','Muñeca'],['mano','Mano'],['dedos','Dedos']]
+    .forEach(([id, n]) => zone(id + K, n + ' ' + sd, G));
+}
+for (const s of [1, -1]) {
+  const sd = s > 0 ? 'izq.' : 'der.', K = s > 0 ? '_izq' : '_der', G = s > 0 ? 'Pierna izquierda' : 'Pierna derecha';
+  [['muslo_front','Muslo frontal'],['muslo_ext','Muslo exterior'],['muslo_int','Muslo interior'],['muslo_post','Muslo posterior'],['rodilla','Rodilla'],['espinilla','Espinilla'],['gemelo','Gemelo'],['tobillo','Tobillo'],['pie','Pie']]
+    .forEach(([id, n]) => zone(id + K, n + ' ' + sd, G));
+}
+
+/* Modelos base (GLB): hombre y mujer */
+const glb = await (await fetch('assets/cuerpos.glb')).arrayBuffer();
+const dv = new DataView(glb), jl = dv.getUint32(12, true);
+const gj = JSON.parse(new TextDecoder().decode(new Uint8Array(glb, 20, jl)));
+const binOff = 20 + jl + 8;
+function acc(i) {
+  const ac = gj.accessors[i], bv = gj.bufferViews[ac.bufferView];
+  const off = binOff + (bv.byteOffset || 0) + (ac.byteOffset || 0);
+  const n = { SCALAR: 1, VEC2: 2, VEC3: 3 }[ac.type];
+  return ac.componentType === 5125 ? new Uint32Array(glb.slice(off, off + ac.count * 4))
+    : ac.componentType === 5123 ? Uint32Array.from(new Uint16Array(glb.slice(off, off + ac.count * 2)))
+    : new Float32Array(glb.slice(off, off + ac.count * n * 4));
+}
+// Sistema del archivo: Z arriba, -Y al frente → mundo: X=x, Y=z, Z=-y
+function loadBody(meshIndex, height) {
+  const prim = gj.meshes[meshIndex].primitives[0];
+  const src = acc(prim.attributes.POSITION), srcN = acc(prim.attributes.NORMAL), idx = acc(prim.indices);
+  const nv = src.length / 3;
+  let mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9, mny = 1e9, mxy = -1e9;
+  for (let i = 0; i < nv; i++) { const x = src[i*3], y = src[i*3+2], z = -src[i*3+1];
+    mnx = Math.min(mnx, x); mxx = Math.max(mxx, x); mny = Math.min(mny, y); mxy = Math.max(mxy, y); }
+  const cx = (mnx + mxx) / 2, H = mxy - mny, k = height / H;
+  const P = new Float32Array(nv * 3), N = new Float32Array(nv * 3), U = new Float32Array(nv * 3);
+  for (let i = 0; i < nv; i++) {
+    U[i*3] = (src[i*3] - cx) / H; U[i*3+1] = (src[i*3+2] - mny) / H; U[i*3+2] = -src[i*3+1] / H;
+    P[i*3] = U[i*3] * height; P[i*3+1] = U[i*3+1] * height; P[i*3+2] = U[i*3+2] * height;
+    N[i*3] = srcN[i*3]; N[i*3+1] = srcN[i*3+2]; N[i*3+2] = -srcN[i*3+1];
+  }
+  return { P, N, U, idx };
+}
+
+/* Zonas en unidades de altura (u = y/H) para la pose en T */
+function zoneOfU(x, u, z) {
+  const s = x >= 0 ? 1 : -1, K = s > 0 ? '_izq' : '_der', ax = Math.abs(x);
+  // Brazos (horizontales)
+  if (u > 0.74 && ax > 0.115) {
+    const zc = -0.032, uc = 0.815;
+    if (ax < 0.14) return 'hombro' + K;
+    if (ax < 0.205) return z > zc ? 'biceps' + K : 'triceps' + K;
+    if (ax < 0.235) return 'codo' + K;
+    if (ax < 0.335) return ((uc - u) + (z - zc)) > 0 ? 'antebrazo_int' + K : 'antebrazo_ext' + K;
+    if (ax < 0.36) return 'muneca' + K;
+    if (ax > 0.385 && z > 0.006) return 'dedos' + K;
+    return ax < 0.418 ? 'mano' + K : 'dedos' + K;
+  }
+  if (u > 0.765 && ax > 0.095 && ax <= 0.115) return 'hombro' + K;
+  // Cabeza y cuello
+  if (u > 0.872) return 'cabeza';
+  if (u > 0.83 && ax < 0.048) return z > -0.006 ? 'cuello' : 'nuca';
+  // Torso
+  if (u >= 0.48) {
+    const a = Math.abs(Math.atan2(x, z + 0.01));
+    const front = a < PI/2;
+    if (u < 0.575) return front ? 'cadera' : 'gluteos';
+    if (u < 0.72 && u >= 0.595 && a >= 1.0 && a < 2.25) return 'costillas' + K;
+    if (u >= 0.685) return front ? 'pecho' + K : 'espalda_alta';
+    return a < 1.0 ? 'abdomen' : front ? 'costillas' + K : 'lumbar';
+  }
+  // Piernas
+  const cx = s * 0.046;
+  if (u > 0.44 && z < -0.004) return 'gluteos';
+  if (u > 0.455) return 'cadera';
+  if (u > 0.305) {
+    const q = Math.atan2(s * (x - cx), z);
+    if (Math.abs(q) < PI/4) return 'muslo_front' + K;
+    if (q >= PI/4 && q < 3*PI/4) return 'muslo_ext' + K;
+    if (q <= -PI/4 && q > -3*PI/4) return 'muslo_int' + K;
+    return 'muslo_post' + K;
+  }
+  if (u > 0.255) return 'rodilla' + K;
+  if (u > 0.075) return z > -0.01 ? 'espinilla' + K : 'gemelo' + K;
+  if (u > 0.04 && z < 0.02) return 'tobillo' + K;
+  return 'pie' + K;
+}
+
+function buildBody(meshIndex, height, name) {
+  const { P, N, U, idx } = loadBody(meshIndex, height);
+  const byZone = {};
+  for (let t = 0; t < idx.length; t += 3) {
+    const a = idx[t]*3, b = idx[t+1]*3, c = idx[t+2]*3;
+    const id = zoneOfU((U[a]+U[b]+U[c])/3, (U[a+1]+U[b+1]+U[c+1])/3, (U[a+2]+U[b+2]+U[c+2])/3);
+    (byZone[id] || (byZone[id] = [])).push(idx[t], idx[t+1], idx[t+2]);
+  }
+  const g = new THREE.Group(); g.name = name; const picks = [];
+  for (const id of order) {
+    const list = byZone[id]; if (!list) continue;
+    const remap = new Map(), vp = [], vn = [], ix = new Uint32Array(list.length);
+    for (let n = 0; n < list.length; n++) {
+      const v = list[n]; let r = remap.get(v);
+      if (r === undefined) { r = vp.length/3; remap.set(v, r); vp.push(P[v*3], P[v*3+1], P[v*3+2]); vn.push(N[v*3], N[v*3+1], N[v*3+2]); }
+      ix[n] = r;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(vp, 3));
+    geo.setAttribute('normal', new THREE.Float32BufferAttribute(vn, 3));
+    geo.setIndex(new THREE.BufferAttribute(ix, 1));
+    geo.computeBoundingSphere();
+    const m = new THREE.Mesh(geo, zones[id].mat); m.name = name + '_' + id; m.userData.zone = id;
+    g.add(m); picks.push(m);
+  }
+  const platMat = new THREE.MeshStandardMaterial({ name: 'plataforma', color: new THREE.Color(tok('--color-neutral-400', '#2e2b25')), roughness: 0.55, metalness: 0 });
+  const plat = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.03, 0.8), platMat);
+  plat.name = 'plataforma'; plat.position.set(0, -0.014, 0.02);
+  g.add(plat);
+  return { group: g, picks };
+}
+const models = {
+  hombre: buildBody(1, 1.80, 'hombre'),
+  mujer: buildBody(0, 1.68, 'mujer'),
+};
+/* Encuadre: solo el cuerpo (sin la plataforma) y teniendo en cuenta el ancho del visor,
+   para que en móvil (vertical) quepa entero y centrado */
+let current = null;
+function frame(m = current, frontal = false) {
+  if (!m) return; current = m;
+  const cam = stage._camera, controls = stage._controls;
+  const box = new THREE.Box3(); m.picks.forEach((p) => box.expandByObject(p));
+  const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+  const v = cam.fov * PI / 180, h = 2 * Math.atan(Math.tan(v / 2) * cam.aspect);
+  const dist = Math.max((size.y / 2) / Math.tan(v / 2), (size.x / 2) / Math.tan(h / 2)) * 1.18 + size.z / 2;
+  const dir = frontal ? new THREE.Vector3(0, 0.12, 1).normalize() : cam.position.clone().sub(controls.target).normalize();
+  controls.target.copy(center);
+  cam.position.copy(center).add(dir.multiplyScalar(dist));
+  cam.near = dist / 100; cam.far = dist * 100; cam.updateProjectionMatrix();
+  controls.update();
+}
+function showModel(key) {
+  const m = models[key];
+  pickables.length = 0; pickables.push(...m.picks);
+  stage.setObject(m.group);
+  frame(m, true);
+}
+document.getElementById('loading').remove();
+showModel('hombre');
+document.querySelectorAll('input[name="body"]').forEach((inp) => inp.addEventListener('change', () => {
+  showModel(inp.value);
+  const f = document.querySelector('input[name="view"][value="0"]'); f.checked = true;
+}));
+let lastW = 0;
+const refit = () => { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; stage._renderer.setSize(w, h); stage._camera.aspect = w / h; stage._camera.updateProjectionMatrix(); if (w !== lastW) { lastW = w; frame(); } };
+requestAnimationFrame(refit); setTimeout(refit, 300); window.addEventListener('load', refit); new ResizeObserver(refit).observe(stage);
+
+/* ---------- Interacción ---------- */
+const canvas = stage.shadowRoot.querySelector('canvas');
+const cam = stage._camera, controls = stage._controls;
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const tip = document.getElementById('tip'), viewer = document.getElementById('viewer');
+let hovered = null, down = null;
+
+function pick(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, cam);
+  const hit = ray.intersectObjects(pickables, false)[0];
+  return (hit && zones[hit.object.userData.zone]) || null;
+}
+function paint(z) {
+  z.mat.color.copy(z.selected ? ACCENT : z === hovered ? HOVER : SKIN);
+}
+canvas.addEventListener('pointermove', (e) => {
+  const z = down ? hovered : pick(e);
+  if (z !== hovered) { const prev = hovered; hovered = z; prev && paint(prev); z && paint(z); }
+  canvas.style.cursor = z ? 'pointer' : 'grab';
+  const vr = viewer.getBoundingClientRect();
+  tip.style.left = (e.clientX - vr.left) + 'px'; tip.style.top = (e.clientY - vr.top) + 'px';
+  tip.textContent = z ? (z.selected ? '✓ ' : '') + z.name : '';
+  tip.classList.toggle('on', !!z);
+});
+canvas.addEventListener('pointerleave', () => { const p = hovered; hovered = null; p && paint(p); tip.classList.remove('on'); });
+canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointerup', (e) => {
+  if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 5) {
+    const z = pick(e); if (z) toggle(z.id);
+  }
+  down = null;
+});
+
+function toggle(id, force) {
+  const z = zones[id]; z.selected = force ?? !z.selected; paint(z); render();
+  if (hovered === z) tip.textContent = (z.selected ? '✓ ' : '') + z.name;
+}
+
+const selEl = document.getElementById('sel'), groupsEl = document.getElementById('groups'), go = document.getElementById('go');
+const xIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const groups = [...new Set(order.map((id) => zones[id].group))];
+groupsEl.innerHTML = groups.map((g, i) => `<details${i === 0 ? '' : ''} data-g="${g}"><summary>${g}<span class="n"></span></summary><div class="chips">${
+  order.filter((id) => zones[id].group === g).map((id) => `<button type="button" class="chip" data-id="${id}" aria-pressed="false">${zones[id].name.replace(/ (izq|der)\.$/, '')}</button>`).join('')
+}</div></details>`).join('');
+groupsEl.addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) toggle(b.dataset.id); });
+selEl.addEventListener('click', (e) => { const b = e.target.closest('.pill'); if (b) toggle(b.dataset.id, false); });
+document.getElementById('clear').addEventListener('click', () => order.forEach((id) => zones[id].selected && toggle(id, false)));
+
+function render() {
+  const sel = order.filter((id) => zones[id].selected);
+  selEl.innerHTML = sel.length
+    ? sel.map((id) => `<button type="button" class="pill" data-id="${id}" aria-label="Quitar ${zones[id].name}">${zones[id].name}${xIcon}</button>`).join('')
+    : '<span class="empty">Aún no has elegido ninguna zona.</span>';
+  groupsEl.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', zones[b.dataset.id].selected));
+  groupsEl.querySelectorAll('details').forEach((d) => {
+    const n = order.filter((id) => zones[id].group === d.dataset.g && zones[id].selected).length;
+    d.querySelector('.n').textContent = n ? n + (n === 1 ? ' elegida' : ' elegidas') : '';
+  });
+  go.disabled = !sel.length;
+}
+render();
+
+/* Modo formulario (?modo=form): la web padre recibe las zonas y rellena su propio formulario */
+const QS = new URLSearchParams(location.search);
+const FORM_MODE = QS.get('modo') === 'form' && parent !== window;
+(QS.get('sel') || '').split(',').filter((id) => zones[id]).forEach((id) => toggle(id, true));
+if (QS.get('cuerpo') === 'mujer') { const r = document.querySelector('input[name="body"][value="mujer"]'); r.checked = true; showModel('mujer'); }
+if (FORM_MODE) {
+  document.getElementById('datos').style.display = 'none';
+  go.textContent = 'Usar estas zonas';
+  document.querySelector('.lead').textContent = 'Gira el cuerpo y toca las zonas que quieres tatuar. Puedes elegir varias. Izquierda y derecha son las tuyas.';
+}
+
+/* Vistas */
+let tween = null;
+document.querySelectorAll('input[name="view"]').forEach((inp) => inp.addEventListener('change', () => {
+  const az = (+inp.value) * PI / 180, t = controls.target;
+  const off = cam.position.clone().sub(t), dist = off.length();
+  const from = new THREE.Spherical().setFromVector3(off);
+  const to = new THREE.Spherical(dist, PI / 2 - 0.12, az);
+  let d = to.theta - from.theta; d = Math.atan2(Math.sin(d), Math.cos(d));
+  const start = performance.now(); controls.autoRotate = false;
+  cancelAnimationFrame(tween);
+  const step = (now) => {
+    const k = Math.min(1, (now - start) / 700), e = 1 - Math.pow(1 - k, 3);
+    const s = new THREE.Spherical(dist, from.phi + (to.phi - from.phi) * e, from.theta + d * e);
+    cam.position.copy(t).add(new THREE.Vector3().setFromSpherical(s));
+    if (k < 1) tween = requestAnimationFrame(step);
+  };
+  tween = requestAnimationFrame(step);
+}));
+
+/* Resumen */
+const dlg = document.getElementById('dlg');
+go.addEventListener('click', () => {
+  if (FORM_MODE) {
+    const ids = order.filter((id) => zones[id].selected);
+    parent.postMessage({ type: 'tattoo-reserva:zonas', ids, zonas: ids.map((id) => zones[id].name),
+      tamano: document.querySelector('input[name="size"]:checked').value,
+      cuerpo: document.querySelector('input[name="body"]:checked').value }, location.origin);
+    return;
+  }
+  const size = document.querySelector('input[name="size"]:checked').value;
+  const names = order.filter((id) => zones[id].selected).map((id) => zones[id].name);
+  document.getElementById('dlg-b').innerHTML = `<p style="margin:0 0 10px">Tamaño: <strong>${size}</strong> · Se abrirá WhatsApp con este mensaje listo para enviar.</p><div style="display:flex;flex-wrap:wrap;gap:6px">${names.map((n) => `<span class="tag tag-accent">${n}</span>`).join('')}</div>`;
+  dlg.hidden = false;
+});
+document.getElementById('dlg-x').addEventListener('click', () => (dlg.hidden = true));
+/* WhatsApp: número por ?wa=34600000000 o data-whatsapp en el botón de la web */
+const qs = new URLSearchParams(location.search);
+const WA = (qs.get('wa') || '34600000000').replace(/\D/g, '');
+const STUDIO = qs.get('estudio') || '';
+function waMessage() {
+  const size = document.querySelector('input[name="size"]:checked').value;
+  const body = document.querySelector('input[name="body"]:checked').value;
+  const names = order.filter((id) => zones[id].selected).map((id) => '• ' + zones[id].name);
+  const nombre = document.getElementById('nombre').value.trim();
+  const idea = document.getElementById('idea').value.trim();
+  return [
+    'Hola' + (STUDIO ? ' ' + STUDIO : '') + ', quiero reservar un tatuaje.',
+    nombre ? 'Nombre: ' + nombre : '',
+    'Cuerpo: ' + body,
+    'Zonas:', ...names,
+    'Tamaño: ' + size,
+    idea ? 'Idea: ' + idea : '',
+  ].filter(Boolean).join('\n');
+}
+document.getElementById('dlg-ok').addEventListener('click', () => {
+  const url = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(waMessage());
+  window.open(url, '_blank', 'noopener');
+  dlg.hidden = true;
+  parent !== window && parent.postMessage({ type: 'tattoo-reserva:enviada' }, '*');
+});
+dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.hidden = true; });
+</script>
+</body>
+</html>

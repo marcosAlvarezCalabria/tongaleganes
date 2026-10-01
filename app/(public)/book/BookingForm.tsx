@@ -1,7 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+
+type ZonaSeleccion = {
+  ids: string[];
+  zonas: string[];
+  tamano: string;
+  cuerpo: "hombre" | "mujer";
+};
+
+declare global {
+  interface Window {
+    TattooReserva?: { open: (opts: Record<string, string>) => void; close: () => void };
+  }
+}
 
 type AppointmentStyle = "fineline" | "neotrad" | "blackwork" | "bodysuit";
 
@@ -38,6 +51,23 @@ export function BookingForm() {
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [zona, setZona] = useState<ZonaSeleccion | null>(null);
+
+  useEffect(() => {
+    function onZonas(event: Event) {
+      const detail = (event as CustomEvent<ZonaSeleccion>).detail;
+      if (detail) setZona(detail);
+    }
+    window.addEventListener("tattoo-reserva:zonas", onZonas);
+    return () => window.removeEventListener("tattoo-reserva:zonas", onZonas);
+  }, []);
+
+  function openZoneSelector() {
+    const params = new URLSearchParams({ modo: "form" });
+    if (zona?.ids.length) params.set("sel", zona.ids.join(","));
+    if (zona?.cuerpo) params.set("cuerpo", zona.cuerpo);
+    window.TattooReserva?.open({ src: `/reserva/index.html?${params.toString()}` });
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,9 +91,12 @@ export function BookingForm() {
       `Artista: ${artist}`,
       `Fecha orientativa: ${preferredStartAt}`,
       "",
+      zona?.zonas.length ? `Zona: ${zona.zonas.join(", ")}` : "Zona: No indicada (ver idea)",
+      zona?.tamano ? `Tamano aproximado: ${zona.tamano}` : "",
+      "",
       "Idea:",
       description.trim(),
-    ].join("\n");
+    ].filter(Boolean).join("\n");
 
     const whatsappUrl = `https://wa.me/34600037560?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -142,6 +175,24 @@ export function BookingForm() {
             <label htmlFor="preferredStartAt">Fecha u Ocasion Preferida</label>
             <input id="preferredStartAt" name="preferredStartAt" type="datetime-local" required />
           </div>
+          <div className="form-field full-width booking-zone-field">
+            <label>Zona del tatuaje</label>
+            <button type="button" className="button button-outline booking-zone-button" onClick={openZoneSelector}>
+              {zona?.zonas.length ? "Cambiar zona en el cuerpo 3D" : "Elegir zona en el cuerpo 3D"}
+            </button>
+            <div className="booking-zone-tags" aria-live="polite">
+              {zona?.zonas.length ? (
+                <>
+                  {zona.zonas.map((nombre) => (
+                    <span className="tag tag-accent" key={nombre}>{nombre}</span>
+                  ))}
+                  {zona.tamano && <span className="tag">Tamano: {zona.tamano}</span>}
+                </>
+              ) : (
+                <span className="booking-zone-empty">Aun no has marcado ninguna zona.</span>
+              )}
+            </div>
+          </div>
           <div className="form-field full-width">
             <label htmlFor="description">Tu Idea / Concepto</label>
             <textarea
@@ -152,7 +203,7 @@ export function BookingForm() {
               rows={5}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Describe tu idea, tamano aproximado, ubicacion corporal..."
+              placeholder="Describe tu idea: estilo, referencias, detalles..."
             />
           </div>
           <div className="form-field full-width booking-whatsapp-note">

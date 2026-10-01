@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Script from "next/script";
 import { MotionExperience } from "@/app/MotionExperience";
 import { SiteHeader } from "@/app/SiteHeader";
 import { BookingForm } from "./BookingForm";
@@ -6,6 +7,7 @@ import { BookingForm } from "./BookingForm";
 export default function BookPage() {
   return (
     <main className="book-page book-page-studio">
+      <Script src="/tattoo-reserva.js" strategy="afterInteractive" />
       <MotionExperience />
       <SiteHeader ctaHref="/" ctaLabel="Volver atras" homeHref="/" ctaBehavior="back" />
       <section className="studio-booking-shell" aria-labelledby="book-title">
@@ -49,6 +51,9 @@ export default function BookPage() {
             <BookingForm />
           </div>
         </div>
+        <p className="booking-3d-credit">
+          Selector 3D — modelo de ronildo.facanha (Sketchfab), licencia CC BY 4.0.
+        </p>
       </section>
     </main>
   );
