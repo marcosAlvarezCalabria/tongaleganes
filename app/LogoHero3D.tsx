@@ -3,10 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Hero 3D: la firma real de Nuria Córdoba extruida en tres.js y animada
- * en turntable. Vive en un iframe estático (public/logo-hero/embed.html)
- * porque usa un import map + three.js desde CDN; aislarlo así evita
- * mezclar ese mundo con el bundler de Next.js.
+ * Hero 3D: el logo de Tonga Tattoo (TT dorada + firma) extruido en tres.js
+ * y animado en turntable. Vive en un iframe estático
+ * (public/logo-hero-tonga/embed.html) porque usa un import map + three.js
+ * desde CDN; aislarlo así evita mezclar ese mundo con el bundler de Next.js.
+ *
+ * El logo anterior de Nuria Córdoba sigue en public/logo-hero/ sin tocar,
+ * por si se quiere volver a usar.
  */
 export function LogoHero3D() {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -141,8 +144,8 @@ export function LogoHero3D() {
       {!ready && !timedOut && <div className="hero-3d-loading" aria-hidden="true" />}
       <iframe
         ref={frameRef}
-        src="/logo-hero/embed.html"
-        title="Firma de Nuria Córdoba en 3D"
+        src="/logo-hero-tonga/embed.html"
+        title="Logo de Tonga Tattoo en 3D"
         className="hero-3d-logo"
         loading="eager"
         allow="fullscreen"
