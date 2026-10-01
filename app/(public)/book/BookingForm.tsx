@@ -52,6 +52,7 @@ export function BookingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [zona, setZona] = useState<ZonaSeleccion | null>(null);
+  const [zoneLoading, setZoneLoading] = useState(false);
 
   useEffect(() => {
     function onZonas(event: Event) {
@@ -63,10 +64,12 @@ export function BookingForm() {
   }, []);
 
   function openZoneSelector() {
+    setZoneLoading(true);
     const params = new URLSearchParams({ modo: "form" });
     if (zona?.ids.length) params.set("sel", zona.ids.join(","));
     if (zona?.cuerpo) params.set("cuerpo", zona.cuerpo);
     window.TattooReserva?.open({ src: `/reserva/index.html?${params.toString()}` });
+    window.setTimeout(() => setZoneLoading(false), 900);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -177,8 +180,31 @@ export function BookingForm() {
           </div>
           <div className="form-field full-width booking-zone-field">
             <label>Zona del tatuaje</label>
-            <button type="button" className="button button-outline booking-zone-button" onClick={openZoneSelector}>
-              {zona?.zonas.length ? "Cambiar zona en el cuerpo 3D" : "Elegir zona en el cuerpo 3D"}
+            <button
+              type="button"
+              className={`booking-zone-poster ${zoneLoading ? "is-loading" : ""}`}
+              onClick={openZoneSelector}
+              aria-label={zona?.zonas.length ? "Cambiar la zona marcada en el cuerpo 3D" : "Elegir la zona del tatuaje en el cuerpo 3D"}
+            >
+              <Image
+                src="/reserva/preview.jpg"
+                alt=""
+                width={640}
+                height={680}
+                className="booking-zone-poster-img"
+                loading="lazy"
+                decoding="async"
+                unoptimized
+              />
+              <span className="booking-zone-poster-scrim" aria-hidden="true" />
+              <span className="booking-zone-poster-badge">Selector 3D interactivo</span>
+              <span className="booking-zone-poster-copy">
+                <strong>{zona?.zonas.length ? "Cambiar zona en el cuerpo 3D" : "Elige la zona en el cuerpo 3D"}</strong>
+                <span>Gira el modelo, toca sobre la piel y marca exactamente donde quieres tu tatuaje.</span>
+              </span>
+              <span className="booking-zone-poster-cta">
+                {zoneLoading ? <span className="booking-zone-spinner" aria-hidden="true" /> : "Abrir selector"}
+              </span>
             </button>
             <div className="booking-zone-tags" aria-live="polite">
               {zona?.zonas.length ? (
