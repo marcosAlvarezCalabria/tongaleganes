@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
  */
 export function LogoHero3D() {
   const frameRef = useRef<HTMLIFrameElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
 
@@ -27,8 +28,43 @@ export function LogoHero3D() {
     };
   }, []);
 
+  // El hero es "position: fixed" (se queda clavado mientras el resto hace
+  // scroll por encima), así que su posición en el viewport nunca cambia:
+  // no vale el --parallax-y normal. Aquí se lee scrollY a pelo y se mueve
+  // tanto el contenedor (CSS) como el propio modelo 3D (vía postMessage).
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frameId = 0;
+
+    const update = () => {
+      frameId = 0;
+      const progress = reducedMotion.matches
+        ? 0
+        : Math.min(window.scrollY / (window.innerHeight * 0.9), 1);
+      wrapRef.current?.style.setProperty("--hero-scroll", progress.toFixed(3));
+      frameRef.current?.contentWindow?.postMessage(
+        { type: "logo-hero:scroll", progress },
+        window.location.origin,
+      );
+    };
+
+    const requestUpdate = () => {
+      if (frameId === 0) frameId = window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    requestUpdate();
+
+    return () => {
+      if (frameId !== 0) window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
   return (
-    <div className="hero-3d-wrap" data-ready={ready ? "true" : "false"}>
+    <div className="hero-3d-wrap" data-ready={ready ? "true" : "false"} ref={wrapRef}>
       {!ready && !timedOut && <div className="hero-3d-loading" aria-hidden="true" />}
       <iframe
         ref={frameRef}

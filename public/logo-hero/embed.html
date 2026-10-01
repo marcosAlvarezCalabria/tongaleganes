@@ -226,6 +226,17 @@ fitCamera();
 new ResizeObserver(fitCamera).observe(stage);
 window.addEventListener('orientationchange', () => setTimeout(fitCamera, 200));
 
+/* El padre (Next.js) manda el progreso de scroll (0 arriba del todo, 1 al
+   bajar una pantalla): el modelo se inclina y se hunde un poco, sumado al
+   giro automático que ya trae el stage. */
+window.addEventListener('message', (e) => {
+  if (e.origin !== location.origin) return;
+  if (e.data?.type !== 'logo-hero:scroll') return;
+  const p = Math.max(0, Math.min(1, e.data.progress));
+  root.rotation.x = -p * 0.45;
+  root.position.y = -p * 0.1;
+});
+
 /* Avisar al padre (Next.js) cuando el modelo está listo, para quitar el fallback/loader */
 window.parent.postMessage({ type: 'logo-hero:listo' }, location.origin);
 </script>
