@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { HandwrittenThanks } from "./HandwrittenThanks";
-import { HeroSlideshow } from "./HeroSlideshow";
+import { LogoHero3D } from "./LogoHero3D";
 import { MotionExperience } from "./MotionExperience";
 import { SiteHeader } from "./SiteHeader";
 import { StudioTour } from "./StudioTour";
@@ -113,10 +113,19 @@ export default function Home() {
             <div><strong>100%</strong><span>Diseños personalizados</span></div>
           </div>
         </div>
-        <div className="hero-visual">
-          <HeroSlideshow />
+        <div className="hero-visual hero-visual-3d">
+          <Image
+            src="/images/hero-poster.webp"
+            alt="Firma de Nuria Córdoba"
+            fill
+            priority
+            sizes="100vw"
+            unoptimized
+            className="hero-visual-poster"
+          />
+          <LogoHero3D />
           <div className="image-badge">
-            <span>Obra de</span>
+            <span>Firma de</span>
             <strong>Nuria Córdoba</strong>
           </div>
         </div>

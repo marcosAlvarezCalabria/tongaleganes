@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Logo 3D — Nuria Córdoba</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:transparent}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;width:100vw;height:100vh;background:transparent}
+</style>
+</head>
+<body>
+<three-d-stage name="nuria-cordoba-logo" background="transparent" autorotate></three-d-stage>
+<script src="three-d-stage.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+/* Ocultar la barra de descarga y la nota de uso: esto es un embed del hero, no la demo */
+{ const sr = stage.shadowRoot, st = document.createElement('style');
+  st.textContent = '.toolbar{display:none!important}.note{display:none!important}';
+  sr.appendChild(st); }
+
+const K = 10, SW = 317, SH = 190;     // traced straight from the artist's logo image
+const W = SW * K, H = SH * K;
+const S = 0.6 / W;                  // 0.6 m wide logo
+const CX = W / 2;
+
+const src = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'logo-nuria.png'; });
+
+// threshold the ink, label connected blobs, classify each into a part
+function classify() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+  g.imageSmoothingQuality = 'high'; g.filter = 'blur(' + (K * 0.55) + 'px)'; g.drawImage(src, 0, 0, W, H); g.filter = 'none';
+  const p = g.getImageData(0, 0, W, H).data, m = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4, L = 0.3 * p[i] + 0.59 * p[i + 1] + 0.11 * p[i + 2];
+    const sx = x / K, sy = y / K;
+    const tag = sx > 205 && sy > 130 && sy < 162 && sx < 315;
+    if (sx > 274 && sx < 279 && sy < 102.5) continue;      // sketch line touching the B
+    m[y * W + x] = L < (tag ? 175 : 118) ? 1 : 0;
+  }
+  const lab = new Int32Array(W * H), st = new Int32Array(W * H), comps = [];
+  for (let s = 0; s < W * H; s++) {
+    if (!m[s] || lab[s]) continue;
+    const id = comps.length + 1; let top = 0, a = 0, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    st[top++] = s; lab[s] = id;
+    while (top) {
+      const q = st[--top]; a++; const x = q % W, y = (q / W) | 0;
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      for (const n of [x > 0 ? q - 1 : -1, x < W - 1 ? q + 1 : -1, y > 0 ? q - W : -1, y < H - 1 ? q + W : -1])
+        if (n >= 0 && m[n] && !lab[n]) { lab[n] = id; st[top++] = n; }
+    }
+    comps.push({ a: a / (K * K), x0: x0 / K, y0: y0 / K, x1: x1 / K, y1: y1 / K });
+  }
+  const cls = comps.map(o => {
+    const w = o.x1 - o.x0, hh = o.y1 - o.y0;
+    if (o.a < 0.5) return 0;
+    if (o.x0 < 1 || o.y1 > 188 || o.x1 > 315) return 0;     // photos at the edges
+    if (o.y0 > 128 && o.x1 < 112) return 0;                   // inside bottom-left photo
+    if (o.x0 > 205 && o.y0 > 128) return 3;                   // Tattoo Artist
+    if (o.x0 > 200 && o.y1 < 101 && w < 100) return 0;        // background sketch
+    if (o.x0 > 255 && w < 5 && hh > 15) return 0;
+    if (o.x0 > 200 && o.y0 < 30) return 0;
+    if (o.y0 >= 99 && o.y1 <= 127 && hh > 14) return 2;       // NURIA CORDOBA
+    if (o.a < 40) return 4;                                   // ink splatter
+    return 1;                                                 // NC monogram
+  });
+  const masks = [null, 1, 2, 3, 4].map(() => new Uint8Array(W * H));
+  for (let i = 0; i < W * H; i++) if (lab[i]) { const k = cls[lab[i] - 1]; if (k) masks[k][i] = 1; }
+  return masks;
+}
+
+// marching squares → closed loops (in px)
+function trace(m) {
+  const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H) ? 0 : m[y * W + x];
+  const pts = new Map(), adj = new Map();
+  const key = (x, y, e) => e === 0 ? `h${x},${y}` : `v${x},${y}`; // h: edge between (x,y)-(x+1,y); v: (x,y)-(x,y+1)
+  const pos = (k) => {
+    const [a, b] = k.slice(1).split(',').map(Number);
+    return k[0] === 'h' ? [a + 0.5, b] : [a, b + 0.5];
+  };
+  const link = (a, b) => {
+    if (!adj.has(a)) adj.set(a, []); if (!adj.has(b)) adj.set(b, []);
+    adj.get(a).push(b); adj.get(b).push(a);
+  };
+  for (let y = -1; y < H; y++) for (let x = -1; x < W; x++) {
+    const tl = at(x, y), tr = at(x + 1, y), br = at(x + 1, y + 1), bl = at(x, y + 1);
+    const c = tl * 8 + tr * 4 + br * 2 + bl;
+    if (c === 0 || c === 15) continue;
+    const T = key(x, y, 0), B = key(x, y + 1, 0), L = key(x, y, 1), R = key(x + 1, y, 1);
+    switch (c) {
+      case 1: case 14: link(L, B); break;
+      case 2: case 13: link(B, R); break;
+      case 3: case 12: link(L, R); break;
+      case 4: case 11: link(T, R); break;
+      case 6: case 9: link(T, B); break;
+      case 7: case 8: link(L, T); break;
+      case 5: link(L, T); link(B, R); break;
+      case 10: link(T, R); link(L, B); break;
+    }
+  }
+  const seen = new Set(), loops = [];
+  for (const start of adj.keys()) {
+    if (seen.has(start)) continue;
+    const loop = []; let prev = null, cur = start;
+    while (cur && !seen.has(cur)) {
+      seen.add(cur); loop.push(pos(cur));
+      const n = adj.get(cur).find(k => k !== prev && !seen.has(k));
+      prev = cur; cur = n;
+    }
+    if (loop.length > 8) loops.push(loop);
+  }
+  return loops;
+}
+
+function rdp(p, eps) {
+  if (p.length < 3) return p;
+  let dmax = 0, idx = 0; const [a, b] = [p[0], p[p.length - 1]];
+  const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+  for (let i = 1; i < p.length - 1; i++) {
+    const d = Math.abs(dy * p[i][0] - dx * p[i][1] + b[0] * a[1] - b[1] * a[0]) / len;
+    if (d > dmax) { dmax = d; idx = i; }
+  }
+  if (dmax > eps) return rdp(p.slice(0, idx + 1), eps).slice(0, -1).concat(rdp(p.slice(idx), eps));
+  return [a, b];
+}
+const area = (p) => { let s = 0; for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; s += a[0] * b[1] - b[0] * a[1]; } return s / 2; };
+const inside = (pt, poly) => {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+};
+
+function shapesFrom(m) {
+  const smooth = (l, n) => { for (let k = 0; k < n; k++) { const o = []; for (let i = 0; i < l.length; i++) { const a = l[i], b = l[(i + 1) % l.length]; o.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); } l = o; } return l; };
+  const avg = (l, r) => l.map((_, i) => { let x = 0, y = 0; for (let j = -r; j <= r; j++) { const q = l[(i + j + l.length) % l.length]; x += q[0]; y += q[1]; } return [x / (2 * r + 1), y / (2 * r + 1)]; });
+  const loops = trace(m).map(l => { l = avg(l, 3); const mid = Math.floor(l.length / 2); const a = rdp(l.slice(0, mid + 1), 0.6), b = rdp(l.slice(mid), 0.6); return smooth(a.slice(0, -1).concat(b.slice(0, -1)), 1); })
+    .filter(l => l.length >= 3 && Math.abs(area(l)) > 40);
+  const depth = loops.map((l, i) => loops.reduce((n, o, j) => n + (j !== i && Math.abs(area(o)) > Math.abs(area(l)) && inside(l[0], o) ? 1 : 0), 0));
+  const toV = (l, cw) => { let v = l.map(([x, y]) => new THREE.Vector2((x - CX) * S, (H - y) * S)); if (THREE.ShapeUtils.isClockWise(v) !== cw) v.reverse(); return v; };
+  const outers = [];
+  loops.forEach((l, i) => { if (depth[i] % 2 === 0) outers.push({ i, shape: new THREE.Shape(toV(l, false)) }); });
+  loops.forEach((l, i) => {
+    if (depth[i] % 2 === 0) return;
+    let best = null;
+    for (const o of outers) if (depth[o.i] === depth[i] - 1 && inside(l[0], loops[o.i]) && (!best || Math.abs(area(loops[o.i])) < Math.abs(area(loops[best.i])))) best = o;
+    if (best) best.shape.holes.push(new THREE.Path(toV(l, true)));
+  });
+  return outers.map(o => o.shape);
+}
+
+function part(name, mat, m, depth, bevel, z = 0) {
+  const geo = new THREE.ExtrudeGeometry(shapesFrom(m), {
+    depth, curveSegments: 4, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel * 0.6, bevelOffset: -bevel * 0.6, bevelSegments: 3,
+  });
+  geo.translate(0, 0, z - depth / 2);
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, mat); mesh.name = name;
+  mesh.castShadow = mesh.receiveShadow = true;
+  return mesh;
+}
+
+const ink = new THREE.MeshStandardMaterial({ name: 'tinta', color: 0x1f1d1b, roughness: 0.28, metalness: 0.1 });
+const gold = new THREE.MeshStandardMaterial({ name: 'oro', color: 0xd9a650, roughness: 0.32, metalness: 0.35 });
+
+const model = new THREE.Group(); model.name = 'nuria_cordoba_logo';
+const masks = classify();
+model.add(part('monograma_NC', ink, masks[1], 0.022, 0.0016, 0.004));
+model.add(part('nombre_NURIA_CORDOBA', ink, masks[2], 0.016, 0.0007));
+model.add(part('firma_Tattoo_Artist', gold, masks[3], 0.01, 0.0005, 0.004));
+model.add(part('salpicaduras', ink, masks[4], 0.008, 0.0012, 0.006));
+
+// rest on y=0, center x/z
+const box = new THREE.Box3().setFromObject(model);
+const c = box.getCenter(new THREE.Vector3());
+model.position.set(-c.x, -box.min.y, -c.z);
+const root = new THREE.Group(); root.name = 'logo'; root.add(model);
+stage.setObject(root);
+{ const t = stage._controls.target, cam = stage._camera, d = cam.position.distanceTo(t) * 0.8;
+  cam.position.set(t.x + d * 0.22, t.y + d * 0.08, t.z + d); stage._controls.update(); }
+
+/* Avisar al padre (Next.js) cuando el modelo está listo, para quitar el fallback/loader */
+window.parent.postMessage({ type: 'logo-hero:listo' }, location.origin);
+</script>
+</body>
+</html>
