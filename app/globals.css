@@ -1106,9 +1106,10 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   letter-spacing: -.04em;
   text-align: right;
 }
-/* Carrusel sin barra visible: en movil/tablet es una tira deslizable normal;
-   en escritorio (con hover real) se vuelve un acordeon tipo Apple, donde la
-   tarjeta sobre la que pasas el raton se expande y el resto se encoge. */
+/* Carrusel sin barra visible, acordeon estilo Apple en TODOS los tamanos:
+   la tarjeta activa se expande y el resto se encoge. En escritorio lo activa
+   el :hover/:focus-visible; en movil/tactil (sin hover) lo activa un tap,
+   via data-active="true" que pone MoreWorkCarousel.tsx al tocar la tarjeta. */
 .more-work-carousel {
   display: flex;
   gap: 10px;
@@ -1123,13 +1124,18 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
 .more-work-carousel::-webkit-scrollbar { display: none; height: 0; }
 .more-work-card {
   position: relative;
-  flex: 0 0 clamp(260px, 32vw, 400px);
-  height: min(56vw, 460px);
+  flex: 1 1 72px;
+  min-width: 64px;
+  height: clamp(260px, 46vw, 440px);
   overflow: hidden;
   background: #211c17;
   scroll-snap-align: start;
   outline: none;
+  transition: flex-grow 560ms cubic-bezier(.22, 1, .36, 1);
 }
+.more-work-card:hover,
+.more-work-card:focus-visible,
+.more-work-card[data-active="true"] { flex-grow: 9; }
 .more-work-image { position: absolute; inset: 0; }
 .more-work-image img {
   object-fit: cover;
@@ -1138,7 +1144,8 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   transition: filter .5s ease, transform .5s ease;
 }
 .more-work-card:hover .more-work-image img,
-.more-work-card:focus-visible .more-work-image img { filter: saturate(1) contrast(1.05); transform: scale(1); }
+.more-work-card:focus-visible .more-work-image img,
+.more-work-card[data-active="true"] .more-work-image img { filter: saturate(1) contrast(1.05); transform: scale(1); }
 .more-work-caption {
   position: absolute;
   inset: auto 0 0 0;
@@ -1151,6 +1158,9 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   color: var(--white);
   overflow: hidden;
   white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 200ms ease, transform 200ms ease;
 }
 .more-work-caption h4 {
   margin: 0;
@@ -1171,20 +1181,20 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Secuencia al activar (hover, foco o tap): primero se expande la tarjeta y
+   la foto pierde el filtro (limpia, sin velo); el texto y el velo oscuro
+   detras aparecen despues, con un pequeno retraso, como una cortina. Al
+   desactivar se ocultan enseguida (sin retraso), con la transicion base. */
+.more-work-card:hover .more-work-caption,
+.more-work-card:focus-visible .more-work-caption,
+.more-work-card[data-active="true"] .more-work-caption {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 420ms ease 260ms, transform 420ms ease 260ms;
+}
 @media (hover: hover) and (pointer: fine) {
   .more-work-carousel { overflow: visible; }
-  .more-work-card {
-    flex: 1 1 64px;
-    min-width: 64px;
-    height: min(46vw, 420px);
-    cursor: pointer;
-    transition: flex-grow 560ms cubic-bezier(.22, 1, .36, 1);
-  }
-  .more-work-card:hover,
-  .more-work-card:focus-visible { flex-grow: 9; }
-  .more-work-caption { opacity: 0; transform: translateY(6px); transition: opacity 280ms ease, transform 280ms ease; }
-  .more-work-card:hover .more-work-caption,
-  .more-work-card:focus-visible .more-work-caption { opacity: 1; transform: translateY(0); }
+  .more-work-card { cursor: pointer; }
 }
 @media (prefers-reduced-motion: reduce) {
   .more-work-card { transition: none; }
@@ -1206,7 +1216,7 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
     margin-inline: -6vw;
     padding-inline: 6vw;
   }
-  .more-work-card { flex-basis: min(78vw, 340px); }
+  .more-work-card { height: clamp(220px, 62vw, 360px); }
   .more-work-caption {
     align-items: flex-start;
     flex-direction: column;

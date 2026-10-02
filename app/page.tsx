@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { HandwrittenThanks } from "./HandwrittenThanks";
 import { LogoHero3D } from "./LogoHero3D";
+import { MoreWorkCarousel } from "./MoreWorkCarousel";
 import { MotionExperience } from "./MotionExperience";
 import { SiteHeader } from "./SiteHeader";
 import { StudioTour } from "./StudioTour";
@@ -265,19 +266,7 @@ export default function Home() {
               <p className="eyebrow">Archivo reciente</p>
               <h3 id="more-work-title">Más trabajos del estudio.</h3>
             </div>
-            <div className="more-work-carousel" aria-label="Más trabajos recientes">
-              {moreWork.map((item) => (
-                <article className="more-work-card" key={item.src} tabIndex={0}>
-                  <div className="more-work-image">
-                    <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 60vw, (max-width: 1100px) 22vw, 420px" loading="lazy" unoptimized />
-                  </div>
-                  <div className="more-work-caption">
-                    <h4>{item.title}</h4>
-                    <span>{item.detail}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <MoreWorkCarousel items={moreWork} />
           </section>
           <a className="button button-outline" href="https://www.instagram.com/tongaleganes/" target="_blank" rel="noreferrer">
             Ver más en Instagram
