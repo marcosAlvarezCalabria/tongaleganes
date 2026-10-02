@@ -171,6 +171,11 @@ export default function Home() {
           <div className="hero-visual-overlay" aria-hidden="true" />
           <LogoHero3D />
         </div>
+        <div className="hero-foot">
+          <span className="hero-foot-kicker">Leganés · Madrid</span>
+          <p className="hero-foot-tagline">Tatuaje de autor, hecho a mano por Nuria Córdoba.</p>
+          <a className="button button-outline hero-foot-cta" href="/book">Pedir cita</a>
+        </div>
         <a className="hero-scroll-cue" href="#estudio" aria-label="Bajar al contenido">
           <span aria-hidden="true">↓</span>
         </a>
