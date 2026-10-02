@@ -3,6 +3,34 @@
 import { useEffect } from "react";
 
 export function MotionExperience() {
+  // Secciones marcadas con data-reveal: la primera vez que entran en pantalla
+  // se les marca data-revealed="true" (una sola vez) y el CSS de cada una
+  // decide qué animar con eso — p. ej. el manifiesto muestra la foto limpia
+  // y retrasa el velo oscuro + el texto, igual que las tarjetas de "Más trabajos".
+  useEffect(() => {
+    const revealItems = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (revealItems.length === 0) return;
+
+    if (typeof IntersectionObserver === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      revealItems.forEach((item) => { item.dataset.revealed = "true"; });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute("data-revealed", "true");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.35 },
+    );
+    revealItems.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const parallaxItems = Array.from(

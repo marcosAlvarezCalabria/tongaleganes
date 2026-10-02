@@ -183,7 +183,7 @@ export default function Home() {
       </section>
 
       <div className="home-scroll-panel">
-      <section className="manifesto" id="estudio">
+      <section className="manifesto" id="estudio" data-reveal>
         <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="190" aria-hidden="true">
           <Image src="/images/estudio-mostrador.webp" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>

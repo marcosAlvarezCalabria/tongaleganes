@@ -179,12 +179,27 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
   background:
     radial-gradient(62% 75% at 50% 50%, rgba(10,9,8,.6), transparent 72%),
     linear-gradient(90deg, rgba(23,21,18,.58), rgba(23,21,18,.14) 50%, rgba(23,21,18,.58));
+  /* Al entrar en pantalla (data-reveal/data-revealed en MotionExperience.tsx)
+     primero se ve la foto real, limpia; el velo oscuro y el texto aparecen
+     despues, con retraso, igual que al expandir una tarjeta de "Mas trabajos". */
+  opacity: 0;
+  transition: opacity 900ms ease 260ms;
 }
+.manifesto[data-revealed="true"] .manifesto-backdrop::after { opacity: 1; }
 .manifesto-backdrop img { filter: grayscale(.35) contrast(1.15); }
+.manifesto .section-content {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 800ms ease 420ms, transform 800ms ease 420ms;
+}
+.manifesto[data-revealed="true"] .section-content { opacity: 1; transform: translateY(0); }
 .manifesto .eyebrow { color: #f0b84a; }
 .manifesto h2 { margin: 0; font-size: clamp(50px, 6.5vw, 94px); line-height: .95; letter-spacing: -.04em; text-shadow: 0 8px 34px rgba(0,0,0,.6); }
 .manifesto h2 em { color: var(--gold); font-style: italic; }
 .manifesto .section-content > p:last-child { max-width: 690px; margin: 42px auto 0; color: #f1eade; line-height: 1.9; text-shadow: 0 3px 18px rgba(0,0,0,.6); }
+@media (prefers-reduced-motion: reduce) {
+  .manifesto-backdrop::after, .manifesto .section-content { transition: none; opacity: 1; transform: none; }
+}
 
 .studio-tour { min-height: 185vh; background: var(--ink-soft); color: var(--white); }
 .studio-tour-stage { position: sticky; top: 0; height: 100svh; padding: 6vw; display: grid; grid-template-columns: minmax(260px, .62fr) minmax(0, 1.38fr); gap: clamp(38px, 7vw, 120px); align-items: center; overflow: hidden; }
