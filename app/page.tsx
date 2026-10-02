@@ -266,10 +266,10 @@ export default function Home() {
               <h3 id="more-work-title">Más trabajos del estudio.</h3>
             </div>
             <div className="more-work-carousel" aria-label="Más trabajos recientes">
-              {moreWork.map((item, index) => (
-                <article className="more-work-card" key={item.src}>
-                  <div className="more-work-image" data-parallax data-parallax-speed={index % 2 === 0 ? "108" : "-86"}>
-                    <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 78vw, 34vw" loading="lazy" unoptimized />
+              {moreWork.map((item) => (
+                <article className="more-work-card" key={item.src} tabIndex={0}>
+                  <div className="more-work-image">
+                    <Image src={item.src} alt={item.alt} fill sizes="(max-width: 700px) 60vw, (max-width: 1100px) 22vw, 420px" loading="lazy" unoptimized />
                   </div>
                   <div className="more-work-caption">
                     <h4>{item.title}</h4>
