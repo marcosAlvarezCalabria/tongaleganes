@@ -43,12 +43,18 @@ export function LogoHero3D() {
       frameId = 0;
       const progress = reducedMotion.matches
         ? 0
-        : Math.min(window.scrollY / (window.innerHeight * 0.9), 1);
+        : Math.max(0, Math.min(window.scrollY / (window.innerHeight * 0.9), 1));
       wrapRef.current?.style.setProperty("--hero-scroll", progress.toFixed(3));
       frameRef.current?.contentWindow?.postMessage(
         { type: "logo-hero:scroll", progress },
         window.location.origin,
       );
+      // Fija en px (medido en cada frame) lo que separa el hero fijo del panel
+      // que hace scroll por encima. Con "100svh" puro, en movil la barra de
+      // direccion al ocultarse/mostrarse cambia la altura dinamica a medio
+      // scroll y el panel se desincroniza: el hero se queda "pegado" arriba
+      // y se ve a medias. Pinarlo a window.innerHeight evita ese salto.
+      document.documentElement.style.setProperty("--home-hero-vh", `${window.innerHeight}px`);
     };
 
     const requestUpdate = () => {
@@ -80,7 +86,7 @@ export function LogoHero3D() {
     let startX = 0;
     let startY = 0;
     let lastX = 0;
-    const THRESHOLD = 8;
+    const THRESHOLD = 12;
     const SENSITIVITY = 0.012;
 
     function spin(deltaYaw: number) {
@@ -105,7 +111,10 @@ export function LogoHero3D() {
 
       if (decided === "none") {
         if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) return;
-        decided = Math.abs(dx) > Math.abs(dy) ? "horizontal" : "vertical";
+        // Le damos ventaja al scroll vertical: solo se decide "horizontal"
+        // si el gesto es claramente mas lateral que vertical, para no robar
+        // nunca un intento de scroll (sobre todo al volver a subir).
+        decided = Math.abs(dx) > Math.abs(dy) * 1.4 ? "horizontal" : "vertical";
         if (decided === "horizontal") {
           el?.setPointerCapture?.(e.pointerId);
         } else {

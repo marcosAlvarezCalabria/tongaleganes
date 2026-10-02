@@ -1010,13 +1010,17 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   inset: 0;
   z-index: 0;
   width: 100%;
-  min-height: 100svh;
+  min-height: var(--home-hero-vh, 100svh);
   transform: translateZ(0);
 }
 .home-scroll-panel {
   position: relative;
   z-index: 2;
-  margin-top: 100svh;
+  /* --home-hero-vh lo fija LogoHero3D en cada frame con window.innerHeight,
+     en px reales: evita que el "100svh" se desincronice cuando la barra de
+     direccion del movil aparece/desaparece a medio scroll (eso dejaba el
+     hero "pegado" arriba y medio tapado al volver a subir). */
+  margin-top: var(--home-hero-vh, 100svh);
   background: var(--paper);
   box-shadow: 0 -34px 90px rgba(0, 0, 0, .38);
 }
