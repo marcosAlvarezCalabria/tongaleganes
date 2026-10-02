@@ -184,6 +184,10 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
 .studio-tour h2 { margin: 0; font-size: clamp(62px, 7.5vw, 108px); line-height: .82; letter-spacing: -.04em; }
 .studio-tour-copy > p:not(.studio-tour-kicker) { max-width: 450px; margin: 38px 0 0; color: #c8c0b5; font-size: 15px; line-height: 1.8; }
 .studio-tour-scroll { display: block; margin-top: 58px; color: #8f877c; font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.studio-tour-photos { display: flex; gap: 14px; margin-top: 30px; max-width: 420px; }
+.studio-tour-photo { position: relative; flex: 1 1 0; aspect-ratio: 4 / 5; overflow: hidden; background: #211c17; }
+.studio-tour-photo:nth-child(2) { margin-top: 26px; }
+.studio-tour-photo img { object-fit: cover; filter: saturate(.85) contrast(1.06); }
 .studio-media { --parallax-y: 0px; position: relative; height: min(78vh, 860px); transform: translate3d(0, var(--parallax-y), 0); will-change: transform; }
 .studio-player { position: relative; width: 100%; height: 100%; overflow: hidden; background: #080706; box-shadow: 22px 30px 70px rgba(0,0,0,.32); }
 .studio-player video { width: 100%; height: 100%; object-fit: cover; background: #080706; }
@@ -321,7 +325,7 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   .hero-visual { min-height: 100svh; height: auto; }
   .studio-tour { min-height: 165vh; }
   .studio-tour-stage { padding: 90px 8vw; grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 46px; }
-  .studio-tour-copy > p:not(.studio-tour-kicker), .studio-tour-scroll { display: none; }
+  .studio-tour-copy > p:not(.studio-tour-kicker), .studio-tour-scroll, .studio-tour-photos { display: none; }
   .studio-media { height: min(64svh, 720px); }
   .section-heading { align-items: start; flex-direction: column; }
   .gallery { grid-template-columns: repeat(2, 1fr); }

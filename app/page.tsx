@@ -184,7 +184,7 @@ export default function Home() {
       <div className="home-scroll-panel">
       <section className="manifesto" id="estudio">
         <div className="parallax-backdrop manifesto-backdrop" data-parallax data-parallax-speed="190" aria-hidden="true">
-          <Image src="/images/artwork.jpg" alt="" fill sizes="100vw" loading="lazy" unoptimized />
+          <Image src="/images/estudio-mostrador.webp" alt="" fill sizes="100vw" loading="lazy" unoptimized />
         </div>
         <div className="section-content">
           <p className="eyebrow">Tonga Tattoo</p>
@@ -206,6 +206,28 @@ export default function Home() {
               cada detalle del proceso.
             </p>
             <span className="studio-tour-scroll" aria-hidden="true">Desliza para recorrer</span>
+            <div className="studio-tour-photos">
+              <div className="studio-tour-photo">
+                <Image
+                  src="/images/estudio-sala.webp"
+                  alt="Zona de espera del estudio Tonga Tattoo"
+                  fill
+                  sizes="(max-width: 900px) 42vw, 220px"
+                  loading="lazy"
+                  unoptimized
+                />
+              </div>
+              <div className="studio-tour-photo">
+                <Image
+                  src="/images/estudio-recorrido.jpg"
+                  alt="Vista general del interior del estudio Tonga Tattoo"
+                  fill
+                  sizes="(max-width: 900px) 42vw, 220px"
+                  loading="lazy"
+                  unoptimized
+                />
+              </div>
+            </div>
           </div>
           <div className="studio-media" data-parallax data-parallax-speed="72">
             <StudioTour />
