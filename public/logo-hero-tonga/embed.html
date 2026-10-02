@@ -195,11 +195,7 @@ window.addEventListener('orientationchange', () => setTimeout(fitCamera, 200));
 window.addEventListener('message', (e) => {
   if (e.origin !== location.origin) return;
   const d = e.data || {};
-  if (d.type === 'logo-hero:scroll') {
-    const p = Math.max(0, Math.min(1, d.progress));
-    root.rotation.x = -p * 0.45;
-    root.position.y = -p * 0.1;
-  } else if (d.type === 'logo-hero:spin' && typeof d.deltaYaw === 'number') {
+  if (d.type === 'logo-hero:spin' && typeof d.deltaYaw === 'number') {
     root.rotation.y += d.deltaYaw;
   }
 });

@@ -32,23 +32,15 @@ export function LogoHero3D() {
   }, []);
 
   // El hero es "position: fixed" (se queda clavado mientras el resto hace
-  // scroll por encima), así que su posición en el viewport nunca cambia:
-  // no vale el --parallax-y normal. Aquí se lee scrollY a pelo y se mueve
-  // tanto el contenedor (CSS) como el propio modelo 3D (vía postMessage).
+  // scroll por encima), así que su posición en el viewport nunca cambia: no
+  // hace falta mover ni inclinar el modelo con el scroll. Lo único que se
+  // sigue leyendo aquí es la altura real del viewport, para fijar en px lo
+  // que separa el hero del panel que hace scroll por encima.
   useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frameId = 0;
 
     const update = () => {
       frameId = 0;
-      const progress = reducedMotion.matches
-        ? 0
-        : Math.max(0, Math.min(window.scrollY / (window.innerHeight * 0.9), 1));
-      wrapRef.current?.style.setProperty("--hero-scroll", progress.toFixed(3));
-      frameRef.current?.contentWindow?.postMessage(
-        { type: "logo-hero:scroll", progress },
-        window.location.origin,
-      );
       // Fija en px (medido en cada frame) lo que separa el hero fijo del panel
       // que hace scroll por encima. Con "100svh" puro, en movil la barra de
       // direccion al ocultarse/mostrarse cambia la altura dinamica a medio
