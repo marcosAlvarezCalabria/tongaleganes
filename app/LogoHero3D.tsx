@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -142,7 +143,22 @@ export function LogoHero3D() {
 
   return (
     <div className="hero-3d-wrap" data-ready={ready ? "true" : "false"} ref={wrapRef}>
-      {!ready && !timedOut && <div className="hero-3d-loading" aria-hidden="true" />}
+      {!ready && !timedOut && (
+        <div className="hero-3d-loading" aria-hidden="true">
+          <div className="hero-3d-loading-stage">
+            <div className="hero-3d-loading-glow" />
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={200}
+              height={238}
+              priority
+              unoptimized
+              className="hero-3d-loading-logo"
+            />
+          </div>
+        </div>
+      )}
       <iframe
         ref={frameRef}
         src="/logo-hero-tonga/embed.html"
