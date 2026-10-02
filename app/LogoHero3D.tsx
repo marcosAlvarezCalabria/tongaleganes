@@ -17,6 +17,26 @@ export function LogoHero3D() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [armed, setArmed] = useState(false);
+
+  // El trazado/extrusión del logo es una tarea pesada de CPU (canvas +
+  // marching squares). Si arranca en el mismo instante que el resto de la
+  // página, compite por el hilo principal justo cuando el navegador está
+  // pintando el primer frame y dispara el TBT/LCP. Esperamos a que el
+  // navegador esté libre (o, como mucho, 1.2s) antes de montar el iframe:
+  // mientras tanto se ve el loader de siempre, así que visualmente no cambia.
+  useEffect(() => {
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => setArmed(true), { timeout: 1200 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(() => setArmed(true), 250);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -25,12 +45,17 @@ export function LogoHero3D() {
       if (event.data?.type === "logo-hero:listo") setReady(true);
     }
     window.addEventListener("message", onMessage);
-    const timeout = window.setTimeout(() => setTimedOut(true), 6000);
-    return () => {
-      window.removeEventListener("message", onMessage);
-      window.clearTimeout(timeout);
-    };
+    return () => window.removeEventListener("message", onMessage);
   }, []);
+
+  // Cuenta atrás del fallback: solo empieza cuando el iframe realmente se
+  // monta, no desde el renderizado inicial (si no, se nos comería el margen
+  // con la espera a estar "idle" de arriba).
+  useEffect(() => {
+    if (!armed) return;
+    const timeout = window.setTimeout(() => setTimedOut(true), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [armed]);
 
   // El hero es "position: fixed" (se queda clavado mientras el resto hace
   // scroll por encima), así que su posición en el viewport nunca cambia: no
@@ -159,14 +184,16 @@ export function LogoHero3D() {
           </div>
         </div>
       )}
-      <iframe
-        ref={frameRef}
-        src="/logo-hero-tonga/embed.html"
-        title="Logo de Tonga Tattoo en 3D"
-        className="hero-3d-logo"
-        loading="eager"
-        allow="fullscreen"
-      />
+      {armed && (
+        <iframe
+          ref={frameRef}
+          src="/logo-hero-tonga/embed.html"
+          title="Logo de Tonga Tattoo en 3D"
+          className="hero-3d-logo"
+          loading="eager"
+          allow="fullscreen"
+        />
+      )}
     </div>
   );
 }

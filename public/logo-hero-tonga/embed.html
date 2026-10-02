@@ -79,7 +79,7 @@ async function fallbackFlatLogo() {
 
 try {
 
-const K = 4, SW = 640, SH = 760, W = SW * K, H = SH * K;
+const K = 2, SW = 640, SH = 760, W = SW * K, H = SH * K;
 const S = 0.6 / W, CX = W / 2;
 const src = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'logo-tonga.png'; });
 
