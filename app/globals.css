@@ -201,15 +201,32 @@ h1 em, h2 em { color: var(--gold); font-weight: 400; }
   .manifesto-backdrop::after, .manifesto .section-content { transition: none; opacity: 1; transform: none; }
 }
 
-.studio-tour { min-height: 185vh; background: var(--ink-soft); color: var(--white); }
+.studio-tour { min-height: 185vh; background: var(--paper); color: var(--ink); }
 .studio-tour-stage { position: sticky; top: 0; height: 100svh; padding: 6vw; display: grid; grid-template-columns: minmax(260px, .62fr) minmax(0, 1.38fr); gap: clamp(38px, 7vw, 120px); align-items: center; overflow: hidden; }
-.studio-tour-copy { position: relative; z-index: 2; }
-.studio-tour-kicker { margin: 0 0 26px; color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.studio-tour-copy {
+  --parallax-y: 0px;
+  position: relative;
+  z-index: 2;
+  transform: translate3d(0, var(--parallax-y), 0);
+  will-change: transform;
+}
+.studio-tour-kicker { margin: 0 0 26px; color: var(--gold-dark); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
 .studio-tour h2 { margin: 0; font-size: clamp(62px, 7.5vw, 108px); line-height: .82; letter-spacing: -.04em; }
-.studio-tour-copy > p:not(.studio-tour-kicker) { max-width: 450px; margin: 38px 0 0; color: #c8c0b5; font-size: 15px; line-height: 1.8; }
-.studio-tour-scroll { display: block; margin-top: 58px; color: #8f877c; font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.studio-tour h2 em { color: var(--gold-dark); font-style: italic; }
+.studio-tour-copy > p:not(.studio-tour-kicker) { max-width: 450px; margin: 38px 0 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
+.studio-tour-scroll { display: block; margin-top: 58px; color: var(--muted); font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
 .studio-tour-photos { display: flex; gap: 14px; margin-top: 30px; max-width: 420px; }
-.studio-tour-photo { position: relative; flex: 1 1 0; aspect-ratio: 4 / 5; overflow: hidden; background: #211c17; }
+.studio-tour-photo {
+  --parallax-y: 0px;
+  position: relative;
+  flex: 1 1 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #ddd5ca;
+  transform: translate3d(0, var(--parallax-y), 0);
+  will-change: transform;
+  box-shadow: 0 20px 44px rgba(23, 21, 18, .16);
+}
 .studio-tour-photo:nth-child(2) { margin-top: 26px; }
 .studio-tour-photo img { object-fit: cover; filter: saturate(.85) contrast(1.06); }
 .studio-media { --parallax-y: 0px; position: relative; height: min(78vh, 860px); transform: translate3d(0, var(--parallax-y), 0); will-change: transform; }

@@ -199,7 +199,7 @@ export default function Home() {
 
       <section className="studio-tour" id="conoce-el-estudio">
         <div className="studio-tour-stage">
-          <div className="studio-tour-copy">
+          <div className="studio-tour-copy" data-parallax data-parallax-speed="34">
             <p className="studio-tour-kicker">Puertas abiertas</p>
             <h2>Conoce<br /><em>el estudio.</em></h2>
             <p>
@@ -208,7 +208,7 @@ export default function Home() {
             </p>
             <span className="studio-tour-scroll" aria-hidden="true">Desliza para recorrer</span>
             <div className="studio-tour-photos">
-              <div className="studio-tour-photo">
+              <div className="studio-tour-photo" data-parallax data-parallax-speed="64">
                 <Image
                   src="/images/estudio-sala.webp"
                   alt="Zona de espera del estudio Tonga Tattoo"
@@ -218,7 +218,7 @@ export default function Home() {
                   unoptimized
                 />
               </div>
-              <div className="studio-tour-photo">
+              <div className="studio-tour-photo" data-parallax data-parallax-speed="-52">
                 <Image
                   src="/images/estudio-recorrido.jpg"
                   alt="Vista general del interior del estudio Tonga Tattoo"
