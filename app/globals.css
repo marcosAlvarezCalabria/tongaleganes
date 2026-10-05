@@ -1096,6 +1096,9 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
 .home-scroll-panel {
   position: relative;
   z-index: 2;
+  /* Evita que el navegador "compense" el scroll cuando cargan imagenes
+     lazy o cambia el alto de algo encima: en movil eso hacia saltar el panel. */
+  overflow-anchor: none;
   /* --home-hero-vh lo fija LogoHero3D en cada frame con window.innerHeight,
      en px reales: evita que el "100svh" se desincronice cuando la barra de
      direccion del movil aparece/desaparece a medio scroll (eso dejaba el
@@ -1163,11 +1166,17 @@ footer span { justify-self: end; color: var(--muted); font-size: 10px; letter-sp
   background: #211c17;
   scroll-snap-align: start;
   outline: none;
-  transition: flex-grow 560ms cubic-bezier(.22, 1, .36, 1);
+  transition: flex-grow 560ms cubic-bezier(.22, 1, .36, 1), flex-basis 560ms cubic-bezier(.22, 1, .36, 1);
 }
 .more-work-card:hover,
 .more-work-card:focus-visible,
 .more-work-card[data-active="true"] { flex-grow: 9; }
+/* En movil la tira hace scroll (no sobra espacio), asi que flex-grow no
+   ensancha nada: la tarjeta activa se ensancha con un ancho propio. */
+@media (hover: none), (max-width: 700px) {
+  .more-work-carousel { scroll-snap-type: none; }
+  .more-work-card[data-active="true"] { flex: 0 0 min(74vw, 320px); }
+}
 .more-work-image { position: absolute; inset: 0; }
 .more-work-image img {
   object-fit: cover;

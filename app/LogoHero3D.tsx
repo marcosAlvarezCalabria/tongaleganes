@@ -58,36 +58,29 @@ export function LogoHero3D() {
   }, [armed]);
 
   // El hero es "position: fixed" (se queda clavado mientras el resto hace
-  // scroll por encima), así que su posición en el viewport nunca cambia: no
-  // hace falta mover ni inclinar el modelo con el scroll. Lo único que se
-  // sigue leyendo aquí es la altura real del viewport, para fijar en px lo
-  // que separa el hero del panel que hace scroll por encima.
+  // scroll por encima). Aquí se fija en px lo que separa el hero del panel
+  // que hace scroll por encima (--home-hero-vh).
+  //
+  // Se mide UNA vez al montar y solo se vuelve a medir si cambia el ANCHO
+  // (girar el móvil o redimensionar la ventana). Antes se actualizaba en cada
+  // scroll con window.innerHeight: en móvil la barra de direcciones se
+  // oculta al empezar a hacer scroll, innerHeight cambia, el margen del panel
+  // cambia a media animación y el navegador (scroll anchoring) lo compensa
+  // saltando de posición — el panel "subía" tapando el héroe de golpe.
   useEffect(() => {
-    let frameId = 0;
-
-    const update = () => {
-      frameId = 0;
-      // Fija en px (medido en cada frame) lo que separa el hero fijo del panel
-      // que hace scroll por encima. Con "100svh" puro, en movil la barra de
-      // direccion al ocultarse/mostrarse cambia la altura dinamica a medio
-      // scroll y el panel se desincroniza: el hero se queda "pegado" arriba
-      // y se ve a medias. Pinarlo a window.innerHeight evita ese salto.
+    const apply = () => {
       document.documentElement.style.setProperty("--home-hero-vh", `${window.innerHeight}px`);
     };
+    apply();
 
-    const requestUpdate = () => {
-      if (frameId === 0) frameId = window.requestAnimationFrame(update);
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return; // solo cambió la altura (barra del navegador): ignorar
+      lastWidth = window.innerWidth;
+      apply();
     };
-
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    requestUpdate();
-
-    return () => {
-      if (frameId !== 0) window.cancelAnimationFrame(frameId);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // Arrastrar hacia los lados gira el logo; arrastrar hacia arriba/abajo
